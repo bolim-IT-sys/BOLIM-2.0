@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { RefreshToken } from "../../models/RefreshToken";
+import { AuditLog } from "../../models/AuditLogs";
 
 export const logout = async (
   req: Request,
@@ -21,6 +22,12 @@ export const logout = async (
       secure: false,
       sameSite: "none",
       //secure: process.env.NODE_ENV === "production",
+    });
+
+    await AuditLog.create({
+      username: req.user?.username || "System", // Grabbed from your verification middleware
+      action: "LOGOUT",
+      details: `Logged out from the system`,
     });
 
     return res.status(200).json({

@@ -1,4 +1,5 @@
 import "./App.css";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/auth/LoginPage";
 import AppLayout from "./layouts/AppLayout";
@@ -15,8 +16,8 @@ import Pins from "./pages/Pins";
 import ITStockDetailsPage from "./pages/ITStockDetailsPage";
 import ITDashboard from "./pages/ITDashboard";
 import PinsDashboard from "./pages/PinsDashboard";
-import { useEffect, useState } from "react";
 import api from "./api/axios";
+import Logs from "./pages/Logs";
 
 // Helper function to check if a JWT token is expired
 const isTokenExpired = (token: string | null): boolean => {
@@ -123,6 +124,7 @@ function App() {
           <Route path="/pin/inbound-usage" element={<PinInbound />} />
           <Route path="/maintenance" element={<Maintenance />} />
           <Route path="/movement" element={<EquipmentMovement />} />
+          <Route path="/logs" element={<Logs />} />
           <Route
             path="/users"
             element={

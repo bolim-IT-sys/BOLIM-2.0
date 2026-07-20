@@ -4,6 +4,7 @@ import { User } from "../../models/User";
 import { RefreshToken } from "../../models/RefreshToken";
 import { generateAccessToken, generateRefreshToken } from "../../utils/jwt";
 import { Module } from "../../models";
+import { AuditLog } from "../../models/AuditLogs";
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -69,6 +70,13 @@ export const login = async (req: Request, res: Response) => {
     });
 
     // For production HTTPS: secure: true sameSite: "none"
+
+    // Inside your existing updateUser function right before return res.json(...)
+    await AuditLog.create({
+      username: user.username || "System", // Grabbed from your verification middleware
+      action: "LOGIN",
+      details: `Logged into system`,
+    });
 
     return res.json({
       accessToken,

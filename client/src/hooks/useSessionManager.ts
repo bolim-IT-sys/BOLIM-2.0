@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import api from "../api/axios";
 
-//const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
-//const WARNING_TIME = 5 * 60 * 1000; // 5 minutes
-const IDLE_TIMEOUT = 20 * 1000; // 20 sec
-const WARNING_TIME = 10 * 1000; // 10 sec
+const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+const WARNING_TIME = 5 * 60 * 1000; // 5 minutes
+//const IDLE_TIMEOUT = 20 * 1000; // 20 sec
+//const WARNING_TIME = 10 * 1000; // 10 sec
 
 export function useSessionManager() {
   const [showWarning, setShowWarning] = useState(false);
@@ -11,11 +12,18 @@ export function useSessionManager() {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const warningRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const logout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("user");
-    localStorage.removeItem("rememberMe");
-    window.location.href = "/login";
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      localStorage.removeItem("rememberMe");
+
+      window.location.href = "/login";
+    }
   };
 
   const resetTimer = useCallback(() => {

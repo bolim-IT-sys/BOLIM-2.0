@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react";
-import { Plus, Pencil, UserX, ShieldCheck, User } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  UserX,
+  ShieldCheck,
+  User,
+  CheckCircle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { Modal } from "../modals/Modal";
+import api from "../api/axios";
+import { isAxiosError } from "axios";
 
 type User = {
   id: number;
@@ -19,55 +30,107 @@ export default function UserManagementPage() {
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(false);
   const [users, setUsers] = useState<User[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  // Form States
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [selectedModules, setSelectedModules] = useState<number[]>([]);
+  const [showPassword, setShowPassword] = useState(false);
+  // Selection States for Modifying Profiles
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const loadUsers = async () => {
+    try {
+      const response = await api.get("/users");
+      setUsers(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Failed to read user index lists:", error);
+    }
+  };
+
+  const loadModules = async () => {
+    try {
+      const response = await api.get("/modules");
+      setModules(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Failed to read server module data:", error);
+    }
+  };
+
+  useEffect(() => {
+    const initialize = async () => {
+      await Promise.all([loadUsers(), loadModules()]);
+    };
+    initialize();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("accessToken");
-
-      const response = await fetch("http://localhost:3000/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+      if (editingUser) {
+        const payload = {
+          username,
+          password,
+          role: editingUser.role,
+          moduleIds: selectedModules,
+        };
+        await api.put(`/users/${editingUser.id}`, payload);
+        alert("User properties updated successfully.");
+      } else {
+        const payload = {
           username,
           password,
           role: "USER",
           moduleIds: selectedModules,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create user");
+        };
+        await api.post("/users", payload);
+        alert("User entry added successfully.");
       }
 
-      alert("User created successfully");
-
-      setUsername("");
-      setPassword("");
-      setSelectedModules([]);
-
-      setIsWelcomeModalOpen(false);
-
+      closeFormModal();
       await loadUsers();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error);
-
-      alert(error instanceof Error ? error.message : "Failed to create user");
+      if (isAxiosError(error)) {
+        alert(
+          error.response?.data?.message || "Failed to update profile entry.",
+        );
+      } else {
+        alert("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleToggleStatus = async (user: User) => {
+    const confirmMessage = `Are you sure you want to ${user.active ? "disable" : "enable"} ${user.username}'s account access`;
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      await api.patch(`/users/${user.id}/status`, { active: !user.active });
+      loadUsers();
+    } catch (error) {
+      console.error("Status modify breakdown:", error);
+      alert("Failed to alter user lifecycle constraints.");
+    }
+  };
+
+  const handleOpenEditModal = (user: User) => {
+    setEditingUser(user);
+    setUsername(user.username);
+    setPassword("");
+    setIsWelcomeModalOpen(true);
+  };
+
+  const closeFormModal = () => {
+    setEditingUser(null);
+    setUsername("");
+    setPassword("");
+    setIsWelcomeModalOpen(false);
   };
 
   const handleModuleChange = (moduleId: number) => {
@@ -78,45 +141,13 @@ export default function UserManagementPage() {
     );
   };
 
-  const loadUsers = async () => {
-    const token = localStorage.getItem("accessToken");
+  const sortedUsers = [...users].sort((a, b) => {
+    return sortDirection === "asc" ? a.id - b.id : b.id - a.id;
+  });
 
-    const response = await fetch("http://localhost:3000/api/users", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message);
-    }
-
-    setUsers(Array.isArray(data) ? data : []);
+  const toggleSortOrder = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
-
-  const loadModules = async () => {
-    const token = localStorage.getItem("accessToken");
-
-    const response = await fetch("http://localhost:3000/api/modules", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await response.json();
-
-    setModules(data);
-  };
-
-  useEffect(() => {
-    const initialize = async () => {
-      await Promise.all([loadUsers(), loadModules()]);
-    };
-
-    initialize();
-  }, []);
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -142,13 +173,21 @@ export default function UserManagementPage() {
         </button>
       </div>
 
-      {/* --- REFINED TABLE WRAPPER --- */}
+      {/* --- TABLE DATA SECTION --- */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-150 border-collapse text-left">
             <thead>
               <tr className="bg-slate-50/70 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                <th className="p-4 pl-6">Username / Identity</th>
+                <th
+                  className="p-4 pl-6 cursor-pointer hover:bg-slate-100 transition-colors"
+                  onClick={toggleSortOrder}
+                >
+                  <span>Username / Identity</span>
+                  <span className="text-[10px] font-mono text-slate-400">
+                    {sortDirection === "asc" ? "▲ ID (Asc)" : "▼ ID (Desc)"}
+                  </span>
+                </th>
                 <th className="p-4">Assigned Role</th>
                 <th className="p-4">Account Status</th>
                 <th className="p-4 pr-6 text-right">Actions</th>
@@ -156,7 +195,7 @@ export default function UserManagementPage() {
             </thead>
 
             <tbody className="divide-y divide-slate-100 text-sm font-medium text-slate-700">
-              {users.map((user) => (
+              {sortedUsers.map((user) => (
                 <tr
                   key={user.id}
                   className="hover:bg-slate-50/50 transition-colors group"
@@ -168,7 +207,7 @@ export default function UserManagementPage() {
                       <div
                         className={`h-9 w-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0
                         ${
-                          user.role === "SUPER_ADMIN" || user.role === "ADMIN"
+                          user.role === "SUPER_ADMIN" || user.role === "USER"
                             ? "bg-indigo-50 text-indigo-700 border border-indigo-100"
                             : "bg-slate-100 text-slate-600"
                         }`}
@@ -224,6 +263,7 @@ export default function UserManagementPage() {
                     <div className="flex justify-end gap-1">
                       <button
                         type="button"
+                        onClick={() => handleOpenEditModal(user)}
                         title="Edit User Info"
                         className="p-2 text-slate-400 hover:text-indigo-600 rounded-xl hover:bg-indigo-50 transition-all"
                       >
@@ -232,10 +272,23 @@ export default function UserManagementPage() {
 
                       <button
                         type="button"
-                        title="Deactivate Account"
-                        className="p-2 text-slate-400 hover:text-rose-600 rounded-xl hover:bg-rose-50 transition-all"
+                        onClick={() => handleToggleStatus(user)}
+                        title={
+                          user.active
+                            ? "Deactivate Account"
+                            : "Activate Account"
+                        }
+                        className={`p-2 rounded-xl transition-all ${
+                          user.active
+                            ? "text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                            : "text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"
+                        }`}
                       >
-                        <UserX size={16} strokeWidth={2.2} />
+                        {user.active ? (
+                          <UserX size={16} strokeWidth={2.2} />
+                        ) : (
+                          <CheckCircle size={16} strokeWidth={2.2} />
+                        )}
                       </button>
                     </div>
                   </td>
@@ -253,10 +306,11 @@ export default function UserManagementPage() {
         )}
       </div>
 
+      {/* FORM MANAGEMENT INPUT MODAL */}
       <Modal
         isOpen={isWelcomeModalOpen}
-        onClose={() => setIsWelcomeModalOpen(false)}
-        title="Create New User"
+        onClose={closeFormModal}
+        title={editingUser ? "Modify Workspace Profile" : "Create New User"}
         size="md" // Changed from 'lg' to 'md' so a simple form doesn't look empty/stretched
       >
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -271,6 +325,7 @@ export default function UserManagementPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-sm shadow-sm placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all"
+              required
             />
           </div>
 
@@ -279,13 +334,23 @@ export default function UserManagementPage() {
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
               Password
             </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-sm shadow-sm placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all"
-            />
+            <div className="relative w-full">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3.5 py-2 pr-10 bg-white border border-slate-200 rounded-lg text-sm shadow-sm placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all"
+                required={!editingUser}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           {/* Module Permissions Checkboxes */}
@@ -300,7 +365,10 @@ export default function UserManagementPage() {
             {/* Grid wrapper splits options into 2 neat columns */}
             <div className="grid grid-cols-2 gap-3">
               {modules.map((module) => (
-                <label className="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-colors">
+                <label
+                  key={module.id}
+                  className="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100 hover:border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-colors"
+                >
                   <input
                     type="checkbox"
                     className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
@@ -319,7 +387,7 @@ export default function UserManagementPage() {
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
             <button
               type="button"
-              onClick={() => setIsWelcomeModalOpen(false)}
+              onClick={closeFormModal}
               className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
             >
               Cancel
@@ -329,7 +397,11 @@ export default function UserManagementPage() {
               disabled={loading}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow-sm shadow-indigo-600/10 transition-colors"
             >
-              {loading ? "Creating..." : "Create Account"}
+              {loading
+                ? "Processing..."
+                : editingUser
+                  ? "Save Updates"
+                  : "Create Account"}
             </button>
           </div>
         </form>

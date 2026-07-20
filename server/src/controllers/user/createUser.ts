@@ -19,26 +19,12 @@ export const createUser = async (req: Request, res: Response) => {
       });
     }
 
-    if (role === "SUPER_ADMIN") {
-      const existingSuperAdmin = await User.count({
-        where: {
-          role: "SUPER_ADMIN",
-        },
-      });
-
-      if (existingSuperAdmin > 0) {
-        return res.status(400).json({
-          message: "Only one Super Admin is allowed",
-        });
-      }
-    }
-
     const passwordHash = await bcrypt.hash(password, 12);
 
     const user = await User.create({
       username,
       passwordHash,
-      role,
+      role: "USER",
       active: true,
     });
 
@@ -52,10 +38,11 @@ export const createUser = async (req: Request, res: Response) => {
     }
 
     return res.status(201).json({
-      message: "User created",
+      message: "User created successfully",
     });
   } catch (error) {
     console.error(error);
+    console.error("❌ CREATE USER CONTROLLER ERROR:", error);
 
     return res.status(500).json({
       message: "Failed to create user",

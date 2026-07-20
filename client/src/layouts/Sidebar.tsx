@@ -15,9 +15,22 @@ import {
   Languages,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import api from "../api/axios";
+import api, { setLoggingOut } from "../api/axios";
 
-const menu = [
+// Define strict menu item interfaces for clean TypeScript compliance
+interface MenuItem {
+  name: string;
+  path: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  moduleCode: string;
+}
+
+interface MenuSection {
+  title: string;
+  items: MenuItem[];
+}
+
+const menu: MenuSection[] = [
   {
     title: "sideNav.dash", // Use translation keys here
     items: [
@@ -103,17 +116,16 @@ const menu = [
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { t, i18n } = useTranslation();
-  const [lang, setLang] = useState("en"); // Language state: 'en' or 'ko'
 
-  const currentLang = i18n.language || "en";
+  const currentLang = i18n.language?.startsWith("ko") ? "ko" : "en";
 
   const toggleLanguage = () => {
-    const nextLang = currentLang.startsWith("en") ? "ko" : "en";
-    setLang((prev) => (prev === "en" ? "ko" : "en"));
+    const nextLang = currentLang === "en" ? "ko" : "en";
     i18n.changeLanguage(nextLang);
   };
 
   const logout = async () => {
+    setLoggingOut(true);
     try {
       await api.post("/auth/logout");
     } catch (error) {
@@ -244,12 +256,12 @@ export default function Sidebar() {
           </div>
           {!collapsed && (
             <span className="text-xs font-bold bg-blue-600/30 text-blue-400 px-2 py-0.5 rounded-md">
-              {lang === "en" ? "EN" : "KO"}
+              {currentLang === "en" ? "EN" : "KO"}
             </span>
           )}
           {collapsed && (
             <span className="text-[10px] block w-full text-center font-bold text-blue-400">
-              {lang.toUpperCase()}
+              {currentLang.toUpperCase()}
             </span>
           )}
         </button>

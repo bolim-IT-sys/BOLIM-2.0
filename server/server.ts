@@ -15,6 +15,7 @@ import spareRoutes from "./src/routes/spare_parts.routes";
 import itInventoryRoutes from "./src/routes/it_inventory.routes";
 import path from "path";
 import itDashboardRoutes from "./src/routes/itdasboard.routes";
+import logsRoute from "./src/routes/logs.routes";
 
 dotenv.config();
 
@@ -55,6 +56,7 @@ app.use("/uploads", express.static(path.join(__dirname, "src/uploads")));
 app.get("/", (req, res) => {
   res.send("IT Inventory API Running");
 });
+app.use("/api", logsRoute);
 
 async function startServer() {
   try {
