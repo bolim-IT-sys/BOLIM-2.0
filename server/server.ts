@@ -16,6 +16,7 @@ import itInventoryRoutes from "./src/routes/it_inventory.routes";
 import path from "path";
 import itDashboardRoutes from "./src/routes/itdasboard.routes";
 import logsRoute from "./src/routes/logs.routes";
+import pinsInventory from "./src/routes/pins_inventory.routes";
 
 dotenv.config();
 
@@ -57,6 +58,7 @@ app.get("/", (req, res) => {
   res.send("IT Inventory API Running");
 });
 app.use("/api", logsRoute);
+app.use("/api/pins-inventory", pinsInventory);
 
 async function startServer() {
   try {

@@ -7,13 +7,13 @@ export function calculateInventoryMetrics(
 
   const safetyStock = Math.ceil(Math.max(avgMonthlyUsage * 2, 10) / 10) * 10;
 
-  const securementRate =
-    safetyStock > 1 ? Number((stock / safetyStock).toFixed(2)) : 0;
+  const rawSecurementRate = safetyStock > 1 ? stock / safetyStock : 0;
+  const securementRate = Number(rawSecurementRate.toFixed(2));
 
   const excessShortage = stock - safetyStock;
 
   const regularOrderQty =
-    securementRate < 1 ? Math.ceil(-excessShortage / 10) * 10 : 0;
+    rawSecurementRate < 1 ? Math.ceil(-excessShortage / 10) * 10 : 0;
 
   return {
     avgMonthlyUsage,

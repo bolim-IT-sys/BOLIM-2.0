@@ -1,0 +1,85 @@
+{/*
+NOT IN USE BECAUSE I FORGOT IF THE OUTBOUND AND INBOUND PRINT LABEL ARE THE SAME. PAGNAALALA MO BALIKAN MO NA LANG TO (07/23/26)
+*/}
+
+import React from "react";
+import { QRCodeCanvas } from "qrcode.react";
+
+type LabelProps = {
+  type?: "INBOUND" | "OUTBOUND";
+  lot_number: string;
+  quantity: string | number;
+  date?: string;
+  destination?: string;
+};
+
+const PrintLabel: React.FC<{ data: LabelProps }> = ({ data }) => {
+  const handlePrint = () => {
+    const canvas = document.getElementById("qr-code-canvas") as HTMLCanvasElement;
+    if (!canvas) return alert("QR canvas not found");
+
+    const imgData = canvas.toDataURL("image/png");
+    const win = window.open("", "_blank", "width=500,height=400");
+
+    if (win) {
+      win.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>
+              @page { size: 4cm 2cm; margin: 0; }
+              html, body { width: 4cm; height: 2cm; margin: 0; padding: 0; font-family: Arial, sans-serif; overflow: hidden; }
+              .label { width: 4cm; height: 2cm; display: flex; align-items: center; padding: 2mm; box-sizing: border-box; gap: 2mm; }
+              .qr img { width: 1.6cm; height: 1.6cm; display: block; }
+              .info { display: flex; flex-direction: column; justify-content: center; }
+              .label-title { font-size: 5.5px; font-weight: bold; color: #555; text-transform: uppercase; line-height: 1; }
+              .value { font-size: 8.5px; font-weight: bold; color: #000; line-height: 1.1; }
+            </style>
+          </head>
+          <body>
+            <div class="label">
+              <div class="qr"><img src="${imgData}" /></div>
+              <div class="info">
+                <div class="label-title">LOT NO</div>
+                <div class="value">${data.lot_number || "N/A"}</div>
+                
+                <div class="label-title" style="margin-top:2px;">QTY</div>
+                <div class="value">${data.quantity ?? "0"}</div>
+
+                ${
+                  data.destination
+                    ? `<div class="label-title" style="margin-top:2px;">DEST</div><div class="value">${data.destination}</div>`
+                    : ""
+                }
+              </div>
+            </div>
+          </body>
+        </html>
+      `);
+      win.document.close();
+      win.onload = () => setTimeout(() => { win.print(); win.close(); }, 200);
+    }
+  };
+
+  const qrValue = `TYPE: ${data.type || "STOCK"} | LOT: ${data.lot_number} | QTY: ${data.quantity} | DATE: ${data.date || ""}`;
+
+  return (
+    <div>
+      <div style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
+        <QRCodeCanvas id="qr-code-canvas" value={qrValue} size={300} level="M" />
+      </div>
+
+      <button
+        type="button"
+        onClick={handlePrint}
+        className={`px-4 py-2 text-white rounded-lg font-semibold text-xs transition flex items-center justify-center gap-2 w-full ${
+          data.type === "OUTBOUND" ? "bg-amber-600 hover:bg-amber-700" : "bg-blue-600 hover:bg-blue-700"
+        }`}
+      >
+        🖨️ Print ${data.type || ""} Label
+      </button>
+    </div>
+  );
+};
+
+export default PrintLabel;

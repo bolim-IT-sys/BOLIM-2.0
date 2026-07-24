@@ -18,6 +18,7 @@ import ITDashboard from "./pages/ITDashboard";
 import PinsDashboard from "./pages/PinsDashboard";
 import api from "./api/axios";
 import Logs from "./pages/Logs";
+import PinStockDetailsPage from "./pages/PinStockDetailsPage";
 
 // Helper function to check if a JWT token is expired
 const isTokenExpired = (token: string | null): boolean => {
@@ -118,6 +119,7 @@ function App() {
           <Route path="/dashboard/it-stock" element={<ITDashboard />} />
           <Route path="/dashboard/pins" element={<PinsDashboard />} />
           <Route path="/pins" element={<Pins />} />
+          <Route path="/pins-stock/:id" element={<PinStockDetailsPage />} />
           <Route path="/it-stock" element={<ItStock />} />
           <Route path="/it-stock/:id" element={<ITStockDetailsPage />} />
           <Route path="/pin/inventory" element={<PinInventory />} />

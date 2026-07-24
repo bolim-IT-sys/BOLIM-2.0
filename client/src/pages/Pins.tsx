@@ -6,10 +6,10 @@ import { Plus, FileDown, Search } from "lucide-react";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
-type ITStock = {
+type PinsStock = {
   id: number;
   image?: string;
-  item_name: string;
+  pin_name: string;
   specification: string;
   category: string;
   unit_price: number;
@@ -47,9 +47,9 @@ export default function Pins() {
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
-  const [stocksData, setStocksData] = useState<ITStock[]>([]);
-  const [editingItem, setEditingItem] = useState<ITStock | null>(null);
-  const [deleteItem, setDeleteItem] = useState<ITStock | null>(null);
+  const [stocksData, setStocksData] = useState<PinsStock[]>([]);
+  const [editingItem, setEditingItem] = useState<PinsStock | null>(null);
+  const [deleteItem, setDeleteItem] = useState<PinsStock | null>(null);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
@@ -60,11 +60,16 @@ export default function Pins() {
 
   const { itemName, specification, category, unitPrice, company } = formState;
 
+  // Export to excel states
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportFrom, setExportFrom] = useState("");
+  const [exportTo, setExportTo] = useState("");
+
   // Memoized columns array
   const columns: Column[] = useMemo(
     () => [
       { key: "image", label: "Image" },
-      { key: "item_name", label: "Item Name" },
+      { key: "pin_name", label: "Pin Name" },
       { key: "specification", label: "Specifications" },
       { key: "category", label: "Category" },
       { key: "unit_price", label: "Unit Price (₩)" },
@@ -82,7 +87,7 @@ export default function Pins() {
     const keyword = search.toLowerCase();
 
     return (
-      item.item_name?.toLowerCase().includes(keyword) ||
+      item.pin_name?.toLowerCase().includes(keyword) ||
       item.specification?.toLowerCase().includes(keyword) ||
       item.category?.toLowerCase().includes(keyword) ||
       item.company?.toLowerCase().includes(keyword)
@@ -96,7 +101,7 @@ export default function Pins() {
 
   const loadStocks = async () => {
     try {
-      const response = await api.get("/it-inventory/view");
+      const response = await api.get("/pins-inventory/view");
       setStocksData(response.data);
     } catch (error) {
       console.error(error);
@@ -126,7 +131,7 @@ export default function Pins() {
   // Reusable frontend validation pipeline
   const validateForm = (parsedPrice: number, isEditMode: boolean): boolean => {
     if (!itemName.trim()) {
-      enqueueSnackbar("Item name is required", { variant: "warning" });
+      enqueueSnackbar("Pin name is required", { variant: "warning" });
       return false;
     }
     if (!specification.trim()) {
@@ -149,7 +154,7 @@ export default function Pins() {
     }
     // Image is only required for new items
     if (!isEditMode && !image) {
-      enqueueSnackbar("Please upload an item image", { variant: "error" });
+      enqueueSnackbar("Please upload an Pin image", { variant: "error" });
       return false;
     }
     if (image && !ALLOWED_IMAGE_TYPES.includes(image.type)) {
@@ -164,7 +169,7 @@ export default function Pins() {
 
   const createFormData = (parsedPrice: number) => {
     const formData = new FormData();
-    formData.append("item_name", itemName.trim());
+    formData.append("pin_name", itemName.trim());
     formData.append("specification", specification.trim());
     formData.append("category", category.trim());
     formData.append("unit_price", parsedPrice.toString());
@@ -182,14 +187,14 @@ export default function Pins() {
     try {
       setLoading(true);
       const formData = createFormData(price);
-      await api.post("/it-inventory/create", formData);
+      await api.post("/pins-inventory/create", formData);
 
-      enqueueSnackbar("Item added successfully", { variant: "success" });
+      enqueueSnackbar("Pin added successfully", { variant: "success" });
       resetForm();
       await loadStocks();
     } catch (error) {
       console.error(error);
-      enqueueSnackbar("Failed to add item", { variant: "error" });
+      enqueueSnackbar("Failed to add Pin", { variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -205,82 +210,99 @@ export default function Pins() {
     try {
       setLoading(true);
       const formData = createFormData(price);
-      await api.put(`/it-inventory/update/${editingItem.id}`, formData);
+      await api.put(`/pins-inventory/update/${editingItem.id}`, formData);
 
-      enqueueSnackbar("Item updated successfully", { variant: "success" });
+      enqueueSnackbar("Pin updated successfully", { variant: "success" });
       resetForm();
       await loadStocks();
     } catch (error) {
       console.error(error);
-      enqueueSnackbar("Failed to update item", { variant: "error" });
+      enqueueSnackbar("Failed to update pin", { variant: "error" });
     } finally {
       setLoading(false);
     }
   };
 
-  const renderCell = (item: ITStock, column: Column) => {
+  const renderCell = (item: PinsStock, column: Column) => {
     switch (column.key) {
       case "image":
         return (
           <img
             src={item.image ? `${BASE_URL}${item.image}` : "/no-image.png"}
-            alt={item.item_name}
+            alt={item.pin_name}
             className="w-20 h-20 object-contain mx-auto"
           />
         );
 
       case "unit_price":
-        return `₩${Number(item.unit_price).toLocaleString()}`;
+        return `₩${Number(item.unit_price || 0).toLocaleString()}`;
 
       case "stock":
         return (
           <span
             className={
-              item.stock <= item.safety_stock
+              Number(item.stock || 0) <= Number(item.safety_stock || 0)
                 ? "text-red-600 font-bold"
-                : "text-green-600"
+                : "text-green-600 font-semibold"
             }
           >
             {item.stock}
           </span>
         );
 
-      case "securement_rate":
-        return item.securement_rate != null
-          ? `${(Number(item.securement_rate) * 100).toFixed(0)}%`
-          : "-";
+      case "securement_rate": {
+        const rate = Number(item.securement_rate);
+        if (item.securement_rate == null || isNaN(rate)) return "-";
 
-      case "excess_shortage":
+        // Converts decimal ratio (0.50) into percentage string (50%)
+        return `${Math.round(rate * 100)}%`;
+      }
+
+      case "excess_shortage": {
+        const val = Number(item.excess_shortage || 0);
         return (
           <span
             className={
-              item.excess_shortage < 0
+              val < 0
                 ? "text-red-600 font-bold"
-                : "text-green-600 font-bold"
+                : val > 0
+                  ? "text-green-600 font-bold"
+                  : "text-slate-500 font-medium"
             }
           >
-            {item.excess_shortage}
+            {val > 0 ? `+${val}` : val}
           </span>
         );
+      }
 
       case "regular_order_qty":
-        return <span className="font-semibold">{item.regular_order_qty}</span>;
+        return (
+          <span
+            className={
+              Number(item.regular_order_qty || 0) > 0
+                ? "text-amber-600 font-bold"
+                : "text-slate-600"
+            }
+          >
+            {item.regular_order_qty}
+          </span>
+        );
 
       case "action":
         return (
           <div className="flex justify-center gap-1">
             <button
-              onClick={() => navigate(`/it-stock/${item.id}`)}
-              className="bg-blue-500 text-white px-3 py-1 rounded"
+              onClick={() => navigate(`/pins-stock/${item.id}`)}
+              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
             >
               View
             </button>
             <button
-              className="bg-green-500 text-white px-2 py-1 rounded"
+              className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition"
               onClick={() => {
                 setEditingItem(item);
                 setFormState({
-                  itemName: item.item_name,
+                  itemName: item.pin_name,
                   specification: item.specification || "",
                   category: item.category || "",
                   unitPrice: Number(item.unit_price).toLocaleString(),
@@ -293,7 +315,7 @@ export default function Pins() {
             </button>
             <button
               onClick={() => setDeleteItem(item)}
-              className="bg-red-500 text-white px-2 py-1 rounded"
+              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
             >
               Delete
             </button>
@@ -301,7 +323,39 @@ export default function Pins() {
         );
 
       default:
-        return String(item[column.key as keyof ITStock] ?? "");
+        return String(item[column.key as keyof PinsStock] ?? "");
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const response = await api.get(`/pins-inventory/export/`, {
+        params: {
+          from: exportFrom,
+          to: exportTo,
+        },
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(response.data);
+
+      const link = document.createElement("a");
+      link.href = url;
+
+      const fileName = `Pins_Stock_Report from ${exportFrom} to ${exportTo}.xlsx`;
+      link.download = fileName;
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      setIsExportModalOpen(false);
+      enqueueSnackbar("Excel exported successfully", { variant: "success" });
+    } catch (error) {
+      console.error("Export error:", error);
+      enqueueSnackbar("Failed to export Excel", { variant: "error" });
     }
   };
 
@@ -338,11 +392,12 @@ export default function Pins() {
             className="inline-flex items-center justify-center gap-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
           >
             <Plus size={16} strokeWidth={2.5} />
-            <span>{t("buttons.addItem", "Add Item")}</span>
+            <span>{t("buttons.addItem", "Add Pin")}</span>
           </button>
 
           <button
             type="button"
+            onClick={() => setIsExportModalOpen(true)}
             className="inline-flex items-center justify-center gap-1 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition"
           >
             <FileDown size={16} strokeWidth={2.5} />
@@ -397,7 +452,7 @@ export default function Pins() {
       <Modal
         isOpen={isModalOpen}
         onClose={resetForm}
-        title={editingItem ? "Edit Item" : "Add New Item"}
+        title={editingItem ? "Edit Pin" : "Add New Pin"}
         size="md"
       >
         <form
@@ -406,7 +461,7 @@ export default function Pins() {
         >
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Item Name
+              Pin Name
             </label>
             <input
               type="text"
@@ -462,14 +517,14 @@ export default function Pins() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Branch
+              Company
             </label>
             <input
               type="text"
               name="company"
               value={company}
               onChange={handleInputChange}
-              placeholder="e.g. F1/F2"
+              //placeholder="e.g. F1/F2"
               required
               className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-sm shadow-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
             />
@@ -505,7 +560,7 @@ export default function Pins() {
                 </p>
                 <img
                   src={imagePreview}
-                  alt="Item Preview"
+                  alt="Pin Preview"
                   className="w-full max-h-28 object-contain rounded-lg bg-white"
                 />
               </div>
@@ -526,7 +581,7 @@ export default function Pins() {
               disabled={loading}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors disabled:opacity-50"
             >
-              {loading ? "Saving..." : editingItem ? "Update Item" : "Add Item"}
+              {loading ? "Saving..." : editingItem ? "Update Pin" : "Add Pin"}
             </button>
           </div>
         </form>
@@ -535,13 +590,13 @@ export default function Pins() {
       <Modal
         isOpen={!!deleteItem}
         onClose={() => setDeleteItem(null)}
-        title="Delete Item"
+        title="Delete Pin"
         size="sm"
       >
         <div className="space-y-4">
           <p>
             Are you sure you want to delete
-            <strong> {deleteItem?.item_name}</strong>?
+            <strong> {deleteItem?.pin_name}</strong>?
           </p>
 
           <div className="flex justify-end gap-2">
@@ -557,9 +612,9 @@ export default function Pins() {
                 if (!deleteItem) return;
 
                 try {
-                  await api.delete(`/it-inventory/delete/${deleteItem.id}`);
+                  await api.delete(`/pins-inventory/delete/${deleteItem.id}`);
 
-                  enqueueSnackbar("Item deleted successfully", {
+                  enqueueSnackbar("Pin deleted successfully", {
                     variant: "success",
                   });
 
@@ -568,7 +623,7 @@ export default function Pins() {
                   await loadStocks();
                 } catch (error) {
                   console.error(error);
-                  enqueueSnackbar("Failed to delete item", {
+                  enqueueSnackbar("Failed to delete pin", {
                     variant: "error",
                   });
                 }
@@ -576,6 +631,54 @@ export default function Pins() {
               className="px-4 py-2 bg-red-600 text-white rounded"
             >
               Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/*Export to excel modal*/}
+      <Modal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        title="Export Inventory History"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">From Date</label>
+
+            <input
+              type="date"
+              value={exportFrom}
+              onChange={(e) => setExportFrom(e.target.value)}
+              className="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">To Date</label>
+
+            <input
+              type="date"
+              value={exportTo}
+              onChange={(e) => setExportTo(e.target.value)}
+              className="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setIsExportModalOpen(false)}
+              className="px-4 py-2 border rounded-lg"
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={handleExport}
+              className="bg-emerald-600 text-white px-4 py-2 rounded-lg"
+            >
+              Export
             </button>
           </div>
         </div>
