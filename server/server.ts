@@ -17,6 +17,7 @@ import path from "path";
 import itDashboardRoutes from "./src/routes/itdasboard.routes";
 import logsRoute from "./src/routes/logs.routes";
 import pinsInventory from "./src/routes/pins_inventory.routes";
+import pinsDashboardRoutes from "./src/routes/pinsdashboard.routes";
 
 dotenv.config();
 
@@ -54,11 +55,11 @@ app.use("/api/spare", spareRoutes);
 app.use("/api/it-inventory", itInventoryRoutes, itDashboardRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "src/uploads")));
 //console.log("STATIC PATH:", path.join(__dirname, "uploads"));
+app.use("/api", logsRoute);
+app.use("/api/pins-inventory", pinsInventory, pinsDashboardRoutes);
 app.get("/", (req, res) => {
   res.send("IT Inventory API Running");
 });
-app.use("/api", logsRoute);
-app.use("/api/pins-inventory", pinsInventory);
 
 async function startServer() {
   try {

@@ -1,15 +1,12 @@
 import { Router, Request, Response } from "express";
-import ITAsset from "../models/it_assets.model";
 import PINSAsset from "../models/pins_assets.model";
-import ITUsageHistory from "../models/it_usage_history.model";
 import PinsUsageHistory from "../models/pins_usage_history.model";
-import ITAssetSerial from "../models/it_asset_serial.model";
+import PINSAssetSerialInbound from "../models/pins_asset_inbound.model";
+import PINSAssetSerialOutbound from "../models/pins_asset_outbound.model";
 import pinUpload from "../middlewares/pinsUpload";
 import fs from "fs";
 import ExcelJS from "exceljs";
-import PINSAssetSerialInbound from "../models/pins_asset_inbound.model";
 import { calculateInventoryMetrics } from "../utils/metricsHelper";
-import PINSAssetSerialOutbound from "../models/pins_asset_outbound.model";
 
 const router = Router();
 
@@ -180,45 +177,7 @@ router.delete("/delete/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Record Stock Usage (Transactional Atomic Operations)
-router.post("/usage", async (req: Request, res: Response) => {
-  if (!ITAsset.sequelize) {
-    return res.status(500).json({ message: "Database connection unavailable" });
-  }
-
-  const transaction = await ITAsset.sequelize.transaction();
-  try {
-    const { asset_id, quantity, usage_date } = req.body;
-    const asset = await ITAsset.findByPk(asset_id, { transaction });
-
-    if (!asset) {
-      await transaction.rollback();
-      return res.status(404).json({ message: "Item not found" });
-    }
-
-    if (Number(asset.stock) < Number(quantity)) {
-      await transaction.rollback();
-      return res.status(400).json({ message: "Insufficient stock" });
-    }
-
-    asset.stock = Number(asset.stock) - Number(quantity);
-    await asset.save({ transaction });
-
-    await ITUsageHistory.create(
-      { asset_id, quantity, usage_date },
-      { transaction },
-    );
-    await transaction.commit();
-
-    return res.json({ success: true });
-  } catch (error) {
-    await transaction.rollback();
-    console.error(error);
-    return res.status(500).json({ message: "Failed to record usage" });
-  }
-});
-
-// Export to excel ItStocks.tsx
+// Export to excel Pins.tsx 🗸
 router.get("/export/", async (req, res) => {
   try {
     const assets = await PINSAsset.findAll();
@@ -611,44 +570,6 @@ router.get("/export/", async (req, res) => {
   } catch (error) {
     console.error("Export failed:", error);
     res.status(500).send("Internal Server Error");
-  }
-});
-
-// Load data
-router.get("/serials/:id", async (req: Request, res: Response) => {
-  try {
-    const assetId = Number(req.params.id);
-    const search = String(req.query.search || "");
-
-    const serials = await ITAssetSerial.findAll({
-      where: {
-        asset_id: assetId,
-      },
-      order: [["received_date", "DESC"]],
-    });
-
-    let results = serials;
-
-    if (search.trim()) {
-      const keyword = search.toLowerCase();
-
-      results = serials.filter(
-        (item) =>
-          item.serial_number?.toLowerCase().includes(keyword) ||
-          item.station?.toLowerCase().includes(keyword) ||
-          item.department?.toLowerCase().includes(keyword) ||
-          item.authorized_personnel?.toLowerCase().includes(keyword) ||
-          item.receiver?.toLowerCase().includes(keyword),
-      );
-    }
-
-    return res.json(results);
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Failed to fetch serial records",
-    });
   }
 });
 
