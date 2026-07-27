@@ -14,13 +14,14 @@ export const updateRepair = async (
 
     const { status, personnel } = req.body;
 
-    // Auto dates
-    if (status === "in_progress" && !repair.started_date) {
+    // 1. Handle "In Progress" -> Set started_date
+    if (status === "In Progress" && !repair.started_date) {
       repair.started_date = new Date();
     }
 
+    // 2. Require image ONLY if status is "Completed"
     if (
-      status === "completed" &&
+      status === "Completed" &&
       !repair.completed_date &&
       !req.file &&
       !repair.after_picture
@@ -30,14 +31,20 @@ export const updateRepair = async (
       });
     }
 
-    if (status === "completed") {
-      repair.completed_date = new Date();
+    // 3. Terminal states ("Completed" OR "Failed") -> Stamp completed_date
+    if (status === "Completed" || status === "Failed") {
+      // Set completed_date if not already set
+      if (!repair.completed_date) {
+        repair.completed_date = new Date();
+      }
 
+      // Attach after_picture if provided (even for failed ones if available)
       if (req.file) {
         repair.after_picture = `/uploads/repairs/${req.file.filename}`;
       }
     }
 
+    // 4. Update basic fields & save
     repair.status = status || repair.status;
     repair.personnel = personnel || repair.personnel;
 

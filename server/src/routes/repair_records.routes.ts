@@ -17,16 +17,17 @@ router.post(
     try {
       const { serial_number } = req.body;
 
+      // ⚠️ FIX: Updated status strings to match Model casing ("Pending", "In Progress")
       const existing = await Repair.findOne({
         where: {
           serial_number,
-          status: { [Op.in]: ["pending", "in_progress"] },
+          status: { [Op.in]: ["Pending", "In Progress"] },
         },
       });
 
       if (existing) {
         return res.status(400).json({
-          error: "This item is already under repair",
+          error: "This item is already under active repair",
         });
       }
 
@@ -38,7 +39,6 @@ router.post(
         return local.toISOString().slice(0, 19).replace("T", " ");
       };
 
-      // Typecast req.files to handle Multer's fields layout safely
       const files = req.files as
         | { [fieldname: string]: Express.Multer.File[] }
         | undefined;
@@ -49,7 +49,7 @@ router.post(
         started_date: formatDateTime(req.body.started_date),
         completed_date: formatDateTime(req.body.completed_date),
         issue_description: req.body.issue_description,
-        status: req.body.status,
+        status: req.body.status || "Pending",
         personnel: req.body.personnel,
 
         before_picture: files?.["before_picture"]?.[0]

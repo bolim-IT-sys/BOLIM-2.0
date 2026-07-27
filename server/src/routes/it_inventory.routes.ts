@@ -1567,19 +1567,31 @@ router.post("/repair/start/:id", async (req, res) => {
 
 router.post("/repair/complete/:id", async (req, res) => {
   try {
+    const { status } = req.body; // Expect e.g. "REPAIRED: AVAILABLE" or "Repair Failed"
+
     const serial = await ITAssetSerial.findByPk(req.params.id);
     if (!serial) return res.status(404).json({ message: "Item not found" });
 
-    await serial.update({ remarks: "REPAIRED: AVAILABLE" });
+    // Validate allowed status transitions
+    const validStatuses = ["REPAIRED: AVAILABLE", "Repair Failed"];
+    const newRemarks = validStatuses.includes(status)
+      ? status
+      : "REPAIRED: AVAILABLE";
+
+    await serial.update({ remarks: newRemarks });
+
     return res.json({
-      message: "Asset successfully restored to service pool",
+      message:
+        newRemarks === "Repair Failed"
+          ? "Asset marked as Repair Failed"
+          : "Asset successfully restored to service pool",
       data: serial,
     });
   } catch (error) {
     console.error(error);
     return res
       .status(500)
-      .json({ message: "Failed to mark item repair status complete" });
+      .json({ message: "Failed to update asset repair status" });
   }
 });
 

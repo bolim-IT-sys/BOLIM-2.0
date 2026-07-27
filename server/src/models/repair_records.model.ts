@@ -1,24 +1,21 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/sequelize";
 
-// 1. Define the interface for the model's attributes
 interface RepairAttributes {
   id: number;
   serial_number: string | null;
   reported_date: Date | string | null;
   issue_description: string;
-  status: "pending" | "in_progress" | "completed";
+  status: "Pending" | "In Progress" | "Completed" | "Failed";
   started_date: Date | string | null;
   completed_date: Date | string | null;
   personnel: string | null;
   before_picture: string | null;
   after_picture: string | null;
   created_at?: Date;
-  updatedAt?: Date; // Note: Sequelize uses camelCase by default for timestamps unless overridden
+  updatedAt?: Date;
 }
 
-// 2. Define the attributes required for creating a new record
-// (id is optional because it's auto-incremented, status is optional due to defaultValue)
 interface RepairCreationAttributes extends Optional<
   RepairAttributes,
   | "id"
@@ -32,7 +29,6 @@ interface RepairCreationAttributes extends Optional<
   | "after_picture"
 > {}
 
-// 3. Extend the Sequelize Model class
 class Repair
   extends Model<RepairAttributes, RepairCreationAttributes>
   implements RepairAttributes
@@ -41,19 +37,17 @@ class Repair
   public serial_number!: string | null;
   public reported_date!: Date | string | null;
   public issue_description!: string;
-  public status!: "pending" | "in_progress" | "completed";
+  public status!: "Pending" | "In Progress" | "Completed" | "Failed";
   public started_date!: Date | string | null;
   public completed_date!: Date | string | null;
   public personnel!: string | null;
   public before_picture!: string | null;
   public after_picture!: string | null;
 
-  // Timestamps
   public readonly created_at!: Date;
   public readonly updatedAt!: Date;
 }
 
-// 4. Initialize the model schema
 Repair.init(
   {
     id: {
@@ -77,9 +71,9 @@ Repair.init(
       },
     },
     status: {
-      type: DataTypes.ENUM("pending", "in_progress", "completed"),
+      type: DataTypes.ENUM("Pending", "In Progress", "Completed", "Failed"),
       allowNull: false,
-      defaultValue: "pending",
+      defaultValue: "Pending",
     },
     started_date: {
       type: DataTypes.DATE,

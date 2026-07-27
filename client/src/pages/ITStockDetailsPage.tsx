@@ -143,6 +143,7 @@ export default function ITStockDetailsPage() {
     "ON HOLD": "bg-gray-500",
     DISPOSED: "bg-red-500",
     AVAILABLE: "bg-emerald-500",
+    "Repair Failed": "bg-amber-500",
   };
 
   const loadSummary = useCallback(async () => {
@@ -1733,6 +1734,24 @@ export default function ITStockDetailsPage() {
                 <span className="text-xs text-slate-400 italic font-medium select-none pr-2">
                   Archived — View Only Mode
                 </span>
+              )}
+
+              {/* REPAIR FAILED STATE */}
+              {selectedSerial.remarks === "Repair Failed" && (
+                <>
+                  <button
+                    onClick={handleSendToRepair}
+                    className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition-colors shadow-sm"
+                  >
+                    Retry Repair
+                  </button>
+                  <button
+                    onClick={handleDispose}
+                    className="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition-colors shadow-sm"
+                  >
+                    Dispose
+                  </button>
+                </>
               )}
             </div>
 
