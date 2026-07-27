@@ -19,6 +19,7 @@ import PinsDashboard from "./pages/PinsDashboard";
 import api from "./api/axios";
 import Logs from "./pages/Logs";
 import PinStockDetailsPage from "./pages/PinStockDetailsPage";
+import ContactAdministrator from "./pages/ContactAdministrator";
 
 // Helper function to check if a JWT token is expired
 const isTokenExpired = (token: string | null): boolean => {
@@ -104,6 +105,17 @@ function App() {
           path="/login"
           element={
             isAuthenticated ? <Navigate to="/hero" replace /> : <LoginPage />
+          }
+        />
+
+        <Route
+          path="/forgot-password"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/hero" replace />
+            ) : (
+              <ContactAdministrator />
+            )
           }
         />
 

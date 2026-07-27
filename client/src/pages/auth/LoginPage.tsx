@@ -144,6 +144,7 @@ export default function LoginPage() {
 
                 <button
                   type="button"
+                  onClick={() => navigate(`/forgot-password/`)}
                   className="text-sm text-blue-600 hover:text-blue-700"
                 >
                   Forgot Password?
@@ -168,7 +169,7 @@ export default function LoginPage() {
                 BOLIM Inventory Management System
               </p>
 
-              <p className="text-xs text-slate-400 mt-1">Version 1.0.0</p>
+              <p className="text-xs text-slate-400 mt-1">Version 2.0.0</p>
             </div>
           </div>
         </div>
