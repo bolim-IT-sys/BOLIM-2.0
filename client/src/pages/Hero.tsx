@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface User {
   id: number;
@@ -9,6 +10,7 @@ interface User {
 
 const Hero: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -43,11 +45,11 @@ const Hero: React.FC = () => {
         </div>
 
         <h1 className="text-4xl font-bold text-white mb-3">
-          Welcome, {user?.username ?? "User"}!
+          {t("hero.welcome", "Welcome,")} {user?.username ?? "User"}!
         </h1>
 
         <div className="mt-8 text-sm text-white/60">
-          © 2026 Bolim Philippines
+          {t("hero.copyright", "© 2026 Bolim Philippines")}
         </div>
       </div>
     </div>

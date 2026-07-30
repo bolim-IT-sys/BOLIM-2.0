@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import LanguageButton from "../../components/LanguageBtn";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,22 +77,24 @@ export default function LoginPage() {
               </div>
 
               <h2 className="text-3xl font-bold text-slate-900">
-                Welcome Back
+                {t("loginPage.welcome", "Welcome Back")}
               </h2>
 
-              <p className="text-slate-500 mt-2">Sign in to your account</p>
+              <p className="text-slate-500 mt-2">
+                {t("loginPage.signIn", "Sign in to your account")}
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Username
+                  {t("loginPage.username", "Username")}
                 </label>
 
                 <input
                   type="text"
                   //placeholder="admin@company.com" previously email
-                  placeholder="Enter Username"
+                  placeholder={t("loginPage.enterUsername", "Enter Username")}
                   value={username}
                   onChange={(e) => {
                     setUsername(e.target.value);
@@ -103,13 +107,13 @@ export default function LoginPage() {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Password
+                  {t("loginPage.password", "Password")}
                 </label>
 
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter password"
+                    placeholder={t("loginPage.enterPassword", "Enter Password")}
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
@@ -137,7 +141,7 @@ export default function LoginPage() {
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                   />
-                  Remember me
+                  {t("loginPage.rememberMe", "Remember me")}
                 </label>
 
                 <LanguageButton />
@@ -147,7 +151,7 @@ export default function LoginPage() {
                   onClick={() => navigate(`/forgot-password/`)}
                   className="text-sm text-blue-600 hover:text-blue-700"
                 >
-                  Forgot Password?
+                  {t("loginPage.forgotPassword", "Forgot Password?")}
                 </button>
               </div>
               {error && (
@@ -160,16 +164,20 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full bg-blue-600 hover:bg-blue-700c text-white font-semibold py-3 rounded-xl transition disabled:opacity-50"
               >
-                {loading ? "Signing In..." : "Sign In"}
+                {loading
+                  ? t("loginPage.signingIn", "Signing In...")
+                  : t("loginPage.signInbtn", "Sign In")}
               </button>
             </form>
 
             <div className="mt-8 pt-6 border-t text-center">
               <p className="text-xs text-slate-500">
-                BOLIM Inventory Management System
+                {t("loginPage.bolimIMS", "BOLIM Inventory Management System")}
               </p>
 
-              <p className="text-xs text-slate-400 mt-1">Version 2.0.0</p>
+              <p className="text-xs text-slate-400 mt-1">
+                {t("loginPage.version", "Version 2.0.0")}
+              </p>
             </div>
           </div>
         </div>

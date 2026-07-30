@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-// import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { enqueueSnackbar } from "notistack";
 import {
   Package,
@@ -34,7 +34,7 @@ interface PinsAsset {
 }
 
 export default function ITStockDetailsPage() {
-  // const { t } = useTranslation();
+  const { t } = useTranslation();
   const { id } = useParams();
   const currentYear = new Date().getFullYear();
 
@@ -176,7 +176,7 @@ export default function ITStockDetailsPage() {
 
   return (
     <div className="h-full w-full bg-slate-50 p-4 md:p-6 space-y-6 overflow-y-auto text-slate-800">
-      {/* Top Filter and Action Bar */}
+      {/* Action Bar */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
           <button
@@ -184,14 +184,14 @@ export default function ITStockDetailsPage() {
             className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition gap-2 h-9.5"
           >
             <Plus size={16} />
-            Inbound Pin
+            {t("buttons.inboundPin", "Inbound Pin")}
           </button>
           <button
             onClick={() => setShowOutboundModal(true)}
             className="inline-flex items-center justify-center bg-amber-600 hover:bg-amber-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition gap-2 h-9.5"
           >
             <Minus size={16} />
-            Outbound Pin
+            {t("buttons.outboundPin", "Outbound Pin")}
           </button>
         </div>
       </div>
@@ -204,7 +204,7 @@ export default function ITStockDetailsPage() {
           </div>
           <div>
             <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-              Current Stock
+              {t("details.current", "Current Stock")}
             </p>
             <p className="text-xl font-bold text-slate-800">
               {item?.currentStock ?? 0}
@@ -218,7 +218,7 @@ export default function ITStockDetailsPage() {
           </div>
           <div>
             <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-              Safety Stock
+              {t("details.safety", "Safety Stock")}
             </p>
             <p className="text-xl font-bold text-slate-800">
               {summary.safetyStock}
@@ -232,7 +232,7 @@ export default function ITStockDetailsPage() {
           </div>
           <div>
             <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-              Monthly Avg Usage
+              {t("details.monthly", "Monthly Avg Usage")}
             </p>
             <p className="text-xl font-bold text-slate-800">
               {summary.averageMonthlyUsage
@@ -254,7 +254,7 @@ export default function ITStockDetailsPage() {
           </div>
           <div>
             <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-              Excess/Shortage
+              {t("details.excess", "Excess/Shortage")}
             </p>
             <p
               className={`text-xl font-bold ${
@@ -276,12 +276,17 @@ export default function ITStockDetailsPage() {
                 {item?.pin_name || "Pin Details"}
               </h2>
               <p className="text-xs text-slate-400">
-                Monthly Inbound & Outbound Asset Breakdown Flow
+                {t(
+                  "details.breakdown",
+                  "Monthly Inbound & Outbound Asset Breakdown Flow",
+                )}
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-slate-500">Year:</span>
+              <span className="text-xs font-medium text-slate-500">
+                {t("details.year", "Year:")}
+              </span>
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
@@ -309,7 +314,7 @@ export default function ITStockDetailsPage() {
                     </th>
                   ))}
                   <th className="bg-blue-600 text-white p-2.5 font-bold tracking-wider">
-                    TOTAL
+                    {t("details.total", "TOTAL")}
                   </th>
                 </tr>
               </thead>
@@ -350,7 +355,7 @@ export default function ITStockDetailsPage() {
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden transform transition-all scale-100">
             <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
               <h3 className="font-bold text-slate-800 text-base">
-                New Inventory Inbound
+                {t("forms.newInbound", "New Inventory Inbound")}
               </h3>
               <button
                 onClick={() => setShowInboundModal(false)}
@@ -364,7 +369,7 @@ export default function ITStockDetailsPage() {
               {/* Lot Number */}
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">
-                  Lot Number *
+                  {t("forms.lotNum", "Lot Number *")}
                 </label>
                 <input
                   required
@@ -383,7 +388,7 @@ export default function ITStockDetailsPage() {
               {/* Inbound Personnel */}
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">
-                  Inbound Personnel *
+                  {t("forms.inPersonnel", "Inbound Personnel *")}
                 </label>
                 <input
                   required
@@ -403,7 +408,7 @@ export default function ITStockDetailsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1">
-                    Quantity *
+                    {t("forms.quantity", "Quantity *")}
                   </label>
                   <input
                     required
@@ -421,7 +426,7 @@ export default function ITStockDetailsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1">
-                    Inbound Date *
+                    {t("forms.inDate", "Inbound Date *")}
                   </label>
                   <input
                     required
@@ -444,10 +449,12 @@ export default function ITStockDetailsPage() {
                   <div className="p-3 bg-blue-50/60 border border-blue-100 rounded-xl space-y-2 animate-fadeIn">
                     <div className="flex justify-between items-center text-xs text-blue-900 font-medium px-1">
                       <span>
-                        Lot: <strong>{inboundForm.lot_number}</strong>
+                        {t("forms.lot", "Lot:")}{" "}
+                        <strong>{inboundForm.lot_number}</strong>
                       </span>
                       <span>
-                        Qty: <strong>{inboundForm.inbound_quantity}</strong>
+                        {t("forms.qty", "Qty:")}{" "}
+                        <strong>{inboundForm.inbound_quantity}</strong>
                       </span>
                     </div>
 
@@ -468,13 +475,13 @@ export default function ITStockDetailsPage() {
                   onClick={() => setShowInboundModal(false)}
                   className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-medium hover:bg-slate-50 transition-colors"
                 >
-                  Cancel
+                  {t("buttons.cancel", "Cancel")}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium shadow-sm transition-colors disabled:opacity-50"
                 >
-                  Save Inbound
+                  {t("buttons.saveInbound", "Save Inbound")}
                 </button>
               </div>
             </form>
@@ -488,7 +495,7 @@ export default function ITStockDetailsPage() {
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden transform transition-all scale-100">
             <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
               <h3 className="font-bold text-slate-800 text-base">
-                Pin Deployment (Outbound)
+                {t("forms.pinDeployement", "Pin Deployment (Outbound)")}
               </h3>
               <button
                 onClick={() => setShowOutboundModal(false)}
@@ -503,7 +510,7 @@ export default function ITStockDetailsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1">
-                    Outbound Personnel *
+                    {t("forms.outPersonnel", "Outbound Personnel *")}
                   </label>
                   <input
                     required
@@ -520,7 +527,7 @@ export default function ITStockDetailsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1">
-                    Receiver *
+                    {t("forms.receiver", "Receiver *")}
                   </label>
                   <input
                     required
@@ -540,7 +547,7 @@ export default function ITStockDetailsPage() {
               {/* Quantity */}
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">
-                  Quantity *
+                  {t("forms.quantity", "Quantity *")}
                 </label>
                 <input
                   required
@@ -560,7 +567,7 @@ export default function ITStockDetailsPage() {
               {/* Outbound Date */}
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">
-                  Outbound Date *
+                  {t("forms.outDate", "Outbound Date *")}
                 </label>
                 <input
                   required
@@ -610,13 +617,13 @@ export default function ITStockDetailsPage() {
                   onClick={() => setShowOutboundModal(false)}
                   className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs hover:bg-slate-50 transition-colors"
                 >
-                  Cancel
+                  {t("buttons.cancel", "Cancel")}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-medium shadow-sm transition-colors"
                 >
-                  Confirm Release
+                  {t("buttons.release", "Confirm Release")}
                 </button>
               </div>
             </form>

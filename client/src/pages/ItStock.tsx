@@ -279,7 +279,7 @@ export default function ItStocks() {
               onClick={() => navigate(`/it-stock/${item.id}`)}
               className="bg-blue-500 text-white px-3 py-1 rounded"
             >
-              View
+              {t("buttons.view", "View")}
             </button>
             <button
               className="bg-green-500 text-white px-2 py-1 rounded"
@@ -295,13 +295,13 @@ export default function ItStocks() {
                 setIsModalOpen(true);
               }}
             >
-              Edit
+              {t("buttons.edit", "Edit")}
             </button>
             <button
               onClick={() => setDeleteItem(item)}
               className="bg-red-500 text-white px-2 py-1 rounded"
             >
-              Delete
+              {t("buttons.delete", "Delete")}
             </button>
           </div>
         );
@@ -359,7 +359,7 @@ export default function ItStocks() {
           <input
             type="text"
             placeholder={t(
-              "search.placeholder",
+              "table.search",
               "Search item name, specification, category...",
             )}
             value={search}
@@ -439,7 +439,11 @@ export default function ItStocks() {
       <Modal
         isOpen={isModalOpen}
         onClose={resetForm}
-        title={editingItem ? "Edit Item" : "Add New Item"}
+        title={
+          editingItem
+            ? t("forms.editItem", "Edit Item")
+            : t("forms.addNewItem", "Add New Item")
+        }
         size="md"
       >
         <form
@@ -448,7 +452,7 @@ export default function ItStocks() {
         >
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Item Name
+              {t("forms.itemName", "Item Names")}
             </label>
             <input
               type="text"
@@ -462,7 +466,7 @@ export default function ItStocks() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Specification
+              {t("forms.specs", "Specification")}
             </label>
             <input
               type="text"
@@ -476,7 +480,7 @@ export default function ItStocks() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Category
+              {t("forms.category", "Category")}
             </label>
             <input
               type="text"
@@ -490,7 +494,7 @@ export default function ItStocks() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Unit Price
+              {t("forms.unitPrice", "Unit Price")}
             </label>
             <input
               type="text"
@@ -504,7 +508,7 @@ export default function ItStocks() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Branch
+              {t("forms.branch", "Branch")}
             </label>
             <input
               type="text"
@@ -519,7 +523,7 @@ export default function ItStocks() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Upload Image
+              {t("forms.upload", "Upload Image")}
             </label>
             <input
               type="file"
@@ -543,7 +547,7 @@ export default function ItStocks() {
             {imagePreview && (
               <div className="mt-4 border rounded-xl p-3 bg-slate-50">
                 <p className="text-xs font-medium text-slate-500 mb-2">
-                  Image Preview
+                  {t("forms.image", "Image Preview")}
                 </p>
                 <img
                   src={imagePreview}
@@ -561,14 +565,18 @@ export default function ItStocks() {
               onClick={resetForm}
               className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
             >
-              Cancel
+              {t("buttons.cancel", "Cancel")}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors disabled:opacity-50"
             >
-              {loading ? "Saving..." : editingItem ? "Update Item" : "Add Item"}
+              {loading
+                ? t("buttons.saving", "Saving...")
+                : editingItem
+                  ? t("buttons.updateItem", "Update Item")
+                  : t("buttons.addItem", "Add Item")}
             </button>
           </div>
         </form>
@@ -577,12 +585,12 @@ export default function ItStocks() {
       <Modal
         isOpen={!!deleteItem}
         onClose={() => setDeleteItem(null)}
-        title="Delete Item"
+        title={t("modal.deleteItem", "Delete Item")}
         size="sm"
       >
         <div className="space-y-4">
           <p>
-            Are you sure you want to delete
+            {t("modal.confirmDel", "Are you sure you want to delete")}
             <strong> {deleteItem?.item_name}</strong>?
           </p>
 
@@ -591,7 +599,7 @@ export default function ItStocks() {
               onClick={() => setDeleteItem(null)}
               className="px-4 py-2 border rounded"
             >
-              Cancel
+              {t("buttons.cancel", "Cancel")}
             </button>
 
             <button
@@ -617,7 +625,7 @@ export default function ItStocks() {
               }}
               className="px-4 py-2 bg-red-600 text-white rounded"
             >
-              Delete
+              {t("buttons.delete", "Delete")}
             </button>
           </div>
         </div>
@@ -626,12 +634,14 @@ export default function ItStocks() {
       <Modal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
-        title="Export Inventory History"
+        title={t("modal.exportHistory", "Export Inventory History")}
         size="md"
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">From Date</label>
+            <label className="block text-sm font-medium mb-1">
+              {t("modal.fromDate", "From Date")}
+            </label>
 
             <input
               type="date"
@@ -642,7 +652,9 @@ export default function ItStocks() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">To Date</label>
+            <label className="block text-sm font-medium mb-1">
+              {t("modal.toDate", "To Date")}
+            </label>
 
             <input
               type="date"
@@ -657,14 +669,14 @@ export default function ItStocks() {
               onClick={() => setIsExportModalOpen(false)}
               className="px-4 py-2 border rounded-lg"
             >
-              Cancel
+              {t("buttons.cancel", "Cancel")}
             </button>
 
             <button
               onClick={handleExport}
               className="bg-emerald-600 text-white px-4 py-2 rounded-lg"
             >
-              Export
+              {t("buttons.export", "Export")}
             </button>
           </div>
         </div>

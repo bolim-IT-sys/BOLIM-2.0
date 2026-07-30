@@ -21,6 +21,7 @@ import {
 import { Bar, Doughnut } from "react-chartjs-2";
 import api from "../api/axios";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 // Register ChartJS modules
 ChartJS.register(
@@ -67,6 +68,7 @@ interface CategoryStock {
 }
 
 export default function ITDashboard() {
+  const { t } = useTranslation();
   const [kpis, setKpis] = useState({
     totalAssets: 0,
     currentStocks: 0,
@@ -81,28 +83,28 @@ export default function ITDashboard() {
   //console.log(categoryStocks);
   const kpisCards = [
     {
-      title: "Total Assets",
+      title: t("dashboard.totalAssets", "Total Assets"),
       value: kpis.totalAssets,
       icon: Package,
       color: "text-blue-600",
       bg: "bg-blue-50",
     },
     {
-      title: "Current Stocks",
+      title: t("dashboard.currentStocks", "Current Stocks"),
       value: kpis.currentStocks,
       icon: Layers,
       color: "text-green-600",
       bg: "bg-green-50",
     },
     {
-      title: "Low Stocks",
+      title: t("dashboard.lowStocks", "Low Stocks"),
       value: kpis.lowStocks,
       icon: AlertTriangle,
       color: "text-amber-600",
       bg: "bg-amber-50",
     },
     {
-      title: "Inventory Value",
+      title: t("dashboard.inventoryValue", "Inventory Value"),
       value: `₩${Number(kpis.inventoryValue).toLocaleString()}`,
       icon: Banknote,
       color: "text-green-600",
@@ -208,11 +210,13 @@ export default function ITDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-200 pb-5 mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-            IT INVENTORY DASHBOARD
+            {t("dashboard.it", "IT INVENTORY DASHBOARD")}
           </h1>
           <p className="text-sm text-gray-500">
-            Real-time stock status, analytics, and operational tracking
-            parameters.
+            {t(
+              "dashboard.operational",
+              "Real-time stock status, analytics, and operational tracking parameters.",
+            )}
           </p>
         </div>
         {/*<button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors text-sm">
@@ -244,7 +248,7 @@ export default function ITDashboard() {
       {/* CHARTS LAYER 1: MONTHLY INBOUND VS OUTBOUND */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Monthly Inbound vs Outbound
+          {t("dashboard.monthly", "Monthly Inbound vs Outbound")}
         </h2>
         <div className="h-80 w-full">
           <Bar
@@ -263,7 +267,7 @@ export default function ITDashboard() {
         {/* Inventory Status Distribution (Pie/Doughnut) */}
         <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm lg:col-span-1 flex flex-col">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Inventory Status Distribution
+            {t("dashboard.inventoryStatus", "Inventory Status Distribution")}
           </h2>
           <div className="h-64 flex items-center justify-center relative mt-auto mb-auto">
             <Doughnut
@@ -282,15 +286,21 @@ export default function ITDashboard() {
         {/* Top 10 Low Stocks Table */}
         <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm lg:col-span-1 flex flex-col">
           <h2 className="text-lg font-semibold text-gray-900 mb-3">
-            Top Low Stocks
+            {t("dashboard.topLowStocks", "Top Low Stocks")}
           </h2>
           <div className="overflow-x-auto flex-1">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-gray-100 text-gray-400 font-medium">
-                  <th className="py-2 font-semibold">Item</th>
-                  <th className="py-2 text-center font-semibold">Qty</th>
-                  <th className="py-2 text-right font-semibold">Status</th>
+                  <th className="py-2 font-semibold">
+                    {t("dashboard.item", "Item")}
+                  </th>
+                  <th className="py-2 text-center font-semibold">
+                    {t("dashboard.qty", "Qty")}
+                  </th>
+                  <th className="py-2 text-right font-semibold">
+                    {t("dashboard.status", "Status")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -314,7 +324,9 @@ export default function ITDashboard() {
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${item.stock === 0 ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-700"}`}
                       >
-                        {item.stock === 0 ? "Out of Stock" : "Low"}
+                        {item.stock === 0
+                          ? t("dashboard.os", "Out of Stock")
+                          : t("dashboard.low", "Out of Stock")}
                       </span>
                     </td>
                   </tr>
@@ -327,7 +339,7 @@ export default function ITDashboard() {
         {/* Recent Activities Feed */}
         <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm lg:col-span-1 flex flex-col">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Recent Activities
+            {t("dashboard.recentActivities", "Recent Activities")}
           </h2>
           <div className="flex-1 overflow-y-auto space-y-4 pr-1">
             {activities.map((activity, idx) => (
@@ -366,7 +378,7 @@ export default function ITDashboard() {
       {/* BOTTOM LAYER: CATEGORY STOCKS HORIZONTAL BAR CHART */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Category Stocks Level
+          {t("dashboard.categoryStock", "Category Stocks Level")}
         </h2>
         <div className="h-64 w-full">
           <Bar

@@ -295,7 +295,7 @@ export default function Pins() {
               onClick={() => navigate(`/pins-stock/${item.id}`)}
               className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
             >
-              View
+              {t("buttons.view", "View")}
             </button>
             <button
               className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition"
@@ -311,13 +311,13 @@ export default function Pins() {
                 setIsModalOpen(true);
               }}
             >
-              Edit
+              {t("buttons.edit", "Edit")}
             </button>
             <button
               onClick={() => setDeleteItem(item)}
               className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
             >
-              Delete
+              {t("buttons.delete", "Delete")}
             </button>
           </div>
         );
@@ -372,7 +372,7 @@ export default function Pins() {
           <input
             type="text"
             placeholder={t(
-              "search.placeholder",
+              "table.search",
               "Search item name, specification, category...",
             )}
             value={search}
@@ -452,7 +452,11 @@ export default function Pins() {
       <Modal
         isOpen={isModalOpen}
         onClose={resetForm}
-        title={editingItem ? "Edit Pin" : "Add New Pin"}
+        title={
+          editingItem
+            ? t("forms.editPin", "Edit Pin")
+            : t("forms.addNewPin", "Add New Pin")
+        }
         size="md"
       >
         <form
@@ -461,7 +465,7 @@ export default function Pins() {
         >
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Pin Name
+              {t("forms.pinName", "Pin Name")}
             </label>
             <input
               type="text"
@@ -475,7 +479,7 @@ export default function Pins() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Specification
+              {t("forms.specs", "Specification")}
             </label>
             <input
               type="text"
@@ -489,7 +493,7 @@ export default function Pins() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Category
+              {t("forms.category", "Category")}
             </label>
             <input
               type="text"
@@ -503,7 +507,7 @@ export default function Pins() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Unit Price
+              {t("forms.unitPrice", "Unit Price")}
             </label>
             <input
               type="text"
@@ -517,7 +521,7 @@ export default function Pins() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Company
+              {t("forms.company", "Company")}
             </label>
             <input
               type="text"
@@ -532,7 +536,7 @@ export default function Pins() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Upload Image
+              {t("forms.upload", "Upload Image")}
             </label>
             <input
               type="file"
@@ -556,7 +560,7 @@ export default function Pins() {
             {imagePreview && (
               <div className="mt-4 border rounded-xl p-3 bg-slate-50">
                 <p className="text-xs font-medium text-slate-500 mb-2">
-                  Image Preview
+                  {t("forms.image", "Image Preview")}
                 </p>
                 <img
                   src={imagePreview}
@@ -574,14 +578,18 @@ export default function Pins() {
               onClick={resetForm}
               className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
             >
-              Cancel
+              {t("buttons.cancel", "Cancel")}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors disabled:opacity-50"
             >
-              {loading ? "Saving..." : editingItem ? "Update Pin" : "Add Pin"}
+              {loading
+                ? t("buttons.saving", "Saving...")
+                : editingItem
+                  ? t("buttons.update", "Update Pin")
+                  : t("buttons.addPin", "Add Pin")}
             </button>
           </div>
         </form>
@@ -590,12 +598,12 @@ export default function Pins() {
       <Modal
         isOpen={!!deleteItem}
         onClose={() => setDeleteItem(null)}
-        title="Delete Pin"
+        title={t("modal.deletePin", "Delete Pin")}
         size="sm"
       >
         <div className="space-y-4">
           <p>
-            Are you sure you want to delete
+            {t("modal.confirmDel", "Are you sure you want to delete")}
             <strong> {deleteItem?.pin_name}</strong>?
           </p>
 
@@ -604,7 +612,7 @@ export default function Pins() {
               onClick={() => setDeleteItem(null)}
               className="px-4 py-2 border rounded"
             >
-              Cancel
+              {t("buttons.cancel", "Cancel")}
             </button>
 
             <button
@@ -630,7 +638,7 @@ export default function Pins() {
               }}
               className="px-4 py-2 bg-red-600 text-white rounded"
             >
-              Delete
+              {t("buttons.delete", "Delete")}
             </button>
           </div>
         </div>
@@ -640,12 +648,14 @@ export default function Pins() {
       <Modal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
-        title="Export Inventory History"
+        title={t("modal.exportHistory", "Export Inventory History")}
         size="md"
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">From Date</label>
+            <label className="block text-sm font-medium mb-1">
+              {t("modal.fromDate", "From Date")}
+            </label>
 
             <input
               type="date"
@@ -656,7 +666,9 @@ export default function Pins() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">To Date</label>
+            <label className="block text-sm font-medium mb-1">
+              {t("modal.toDate", "To Date")}
+            </label>
 
             <input
               type="date"
@@ -671,14 +683,14 @@ export default function Pins() {
               onClick={() => setIsExportModalOpen(false)}
               className="px-4 py-2 border rounded-lg"
             >
-              Cancel
+              {t("buttons.cancel", "Cancel")}
             </button>
 
             <button
               onClick={handleExport}
               className="bg-emerald-600 text-white px-4 py-2 rounded-lg"
             >
-              Export
+              {t("buttons.export", "Export")}
             </button>
           </div>
         </div>

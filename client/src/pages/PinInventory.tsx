@@ -195,11 +195,10 @@ export default function InventoryDashboard() {
         <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              {t("pininv.spi")}
+              {t("pininv.spi", "Master Spare Parts Inventory")}
             </h1>
             <p className="text-xs font-medium text-slate-500 mt-0.5">
-              Manage spare part catalogs, category attributes, and item
-              classifications.
+              {t("pininv.manage")}
             </p>
           </div>
 

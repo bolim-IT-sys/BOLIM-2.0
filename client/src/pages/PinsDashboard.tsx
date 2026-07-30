@@ -22,6 +22,7 @@ import {
 import { Bar } from "react-chartjs-2";
 import api from "../api/axios";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 ChartJS.register(
   CategoryScale,
@@ -59,6 +60,7 @@ interface Activity {
 }
 
 export default function PINSDashboard() {
+  const { t } = useTranslation();
   const [kpis, setKpis] = useState({
     totalAssets: 0,
     currentStocks: 0,
@@ -78,7 +80,7 @@ export default function PINSDashboard() {
   const kpisCards = [
     {
       id: "total",
-      title: "Total PIN Assets",
+      title: t("dashboard.totalPin", "Total PIN Assets"),
       value: kpis.totalAssets,
       icon: Package,
       color: "text-blue-600",
@@ -87,7 +89,7 @@ export default function PINSDashboard() {
     },
     {
       id: "stocks",
-      title: "Current Stocks",
+      title: t("dashboard.currentStocks", "Current Stocks"),
       value: kpis.currentStocks,
       icon: Layers,
       color: "text-green-600",
@@ -96,7 +98,7 @@ export default function PINSDashboard() {
     },
     {
       id: "low-stocks",
-      title: "Low Stocks",
+      title: t("dashboard.lowStocks", "Low Stocks"),
       value: kpis.lowStocks,
       icon: AlertTriangle,
       color: "text-amber-600",
@@ -105,7 +107,7 @@ export default function PINSDashboard() {
     },
     {
       id: "value",
-      title: "Inventory Value",
+      title: t("dashboard.inventoryValue", "Inventory Value"),
       value: `₩${Number(kpis.inventoryValue).toLocaleString()}`,
       icon: Banknote,
       color: "text-emerald-600",
@@ -193,10 +195,13 @@ export default function PINSDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-200 pb-5 mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-            PINS INVENTORY DASHBOARD
+            {t("dashboard.pins", "PINS INVENTORY DASHBOARD")}
           </h1>
           <p className="text-sm text-gray-500">
-            Real-time stock status, monthly analytics, and material tracking.
+            {t(
+              "dashboard.realTime",
+              "Real-time stock status, monthly analytics, and material tracking.",
+            )}
           </p>
         </div>
       </div>
@@ -218,7 +223,7 @@ export default function PINSDashboard() {
                 {kpi.title}
                 {kpi.clickable && (
                   <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-semibold">
-                    Click to View
+                    {t("dashboard.click", "Click to View")}
                   </span>
                 )}
               </p>
@@ -236,7 +241,7 @@ export default function PINSDashboard() {
       {/* CHARTS LAYER */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Monthly Inbound vs Outbound
+          {t("dashboard.monthly", "Monthly Inbound vs Outbound")}
         </h2>
         <div className="h-80 w-full">
           <Bar
@@ -256,27 +261,33 @@ export default function PINSDashboard() {
         <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-lg font-semibold text-gray-900">
-              Low Stock PINs
+              {t("dashboard.lowStockPins", "Low Stock PINs")}
             </h2>
             <button
               onClick={() => setIsModalOpen(true)}
               className="text-xs font-semibold text-blue-600 hover:text-blue-800"
             >
-              View All ({lowStocks.length}) →
+              {t("dashboard.view", "View All")} ({lowStocks.length}) →
             </button>
           </div>
           <div className="overflow-x-auto flex-1">
             {lowStocks.length === 0 ? (
               <p className="text-sm text-gray-400 py-4 text-center">
-                All stocks are healthy.
+                {t("dashboard.all", "All stocks are healthy.")}
               </p>
             ) : (
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 text-gray-400 font-medium">
-                    <th className="py-2 font-semibold">PIN Name</th>
-                    <th className="py-2 text-center font-semibold">Qty</th>
-                    <th className="py-2 text-right font-semibold">Status</th>
+                    <th className="py-2 font-semibold">
+                      {t("dashboard.pinName", "PIN Name")}
+                    </th>
+                    <th className="py-2 text-center font-semibold">
+                      {t("dashboard.qty", "Qty")}
+                    </th>
+                    <th className="py-2 text-right font-semibold">
+                      {t("dashboard.status", "Status")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -305,7 +316,9 @@ export default function PINSDashboard() {
                               : "bg-amber-100 text-amber-800 font-semibold"
                           }`}
                         >
-                          {item.stock === 0 ? "Out of Stock" : "Low Stock"}
+                          {item.stock === 0
+                            ? t("dashboard.os", "Out of Stock")
+                            : t("dashboard.ls", "Low Stock")}
                         </span>
                       </td>
                     </tr>
@@ -319,7 +332,7 @@ export default function PINSDashboard() {
         {/* Recent Activities Feed */}
         <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Recent Activities
+            {t("dashboard.recentActivities", "Recent Activities")}
           </h2>
           <div className="flex-1 overflow-y-auto space-y-4 pr-1 max-h-96">
             {activities.map((activity, idx) => (
@@ -368,10 +381,13 @@ export default function PINSDashboard() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900">
-                    Low & Out of Stock PIN Assets
+                    {t("pinsLowModal.title", "Low & Out of Stock PIN Assets")}
                   </h3>
                   <p className="text-xs text-gray-500">
-                    Detailed breakdown of items requiring reorder attention.
+                    {t(
+                      "pinsLowModal.detailed",
+                      "Detailed breakdown of items requiring reorder attention.",
+                    )}
                   </p>
                 </div>
               </div>
@@ -390,7 +406,10 @@ export default function PINSDashboard() {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search PIN name or category..."
+                  placeholder={t(
+                    "pinsLowModal.search",
+                    "Search PIN name or category...",
+                  )}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
@@ -407,7 +426,7 @@ export default function PINSDashboard() {
                       : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  All ({lowStocks.length})
+                  {t("pinsLowModal.all", "All")} ({lowStocks.length})
                 </button>
                 <button
                   onClick={() => setModalFilter("LOW")}
@@ -417,7 +436,8 @@ export default function PINSDashboard() {
                       : "text-amber-700 hover:bg-amber-100/50"
                   }`}
                 >
-                  Low Stock ({lowStocks.filter((i) => i.stock > 0).length})
+                  {t("pinsLowModal.low", "Low Stock")} (
+                  {lowStocks.filter((i) => i.stock > 0).length})
                 </button>
                 <button
                   onClick={() => setModalFilter("OUT")}
@@ -427,7 +447,8 @@ export default function PINSDashboard() {
                       : "text-rose-700 hover:bg-rose-100/50"
                   }`}
                 >
-                  Out of Stock ({lowStocks.filter((i) => i.stock === 0).length})
+                  {t("pinsLowModal.out", "Out of Stock")} (
+                  {lowStocks.filter((i) => i.stock === 0).length})
                 </button>
               </div>
             </div>
@@ -436,18 +457,33 @@ export default function PINSDashboard() {
             <div className="flex-1 overflow-y-auto p-6">
               {modalFilteredItems.length === 0 ? (
                 <div className="text-center py-12 text-gray-400">
-                  No matching stock records found.
+                  {t(
+                    "pinsLowModal.noMatch",
+                    "No matching stock records found.",
+                  )}
                 </div>
               ) : (
                 <table className="w-full text-left text-sm">
                   <thead className="sticky top-0 bg-white">
                     <tr className="border-b border-gray-200 text-gray-400 text-xs font-semibold uppercase tracking-wider">
-                      <th className="pb-3">PIN Name</th>
-                      <th className="pb-3">Category</th>
-                      <th className="pb-3 text-center">Current Qty</th>
-                      <th className="pb-3 text-center">Safety Stock</th>
-                      <th className="pb-3 text-center">Reorder Qty</th>
-                      <th className="pb-3 text-right">Status</th>
+                      <th className="pb-3">
+                        {t("pinsLowModal.pinName", "PIN Name")}
+                      </th>
+                      <th className="pb-3">
+                        {t("pinsLowModal.category", "Category")}
+                      </th>
+                      <th className="pb-3 text-center">
+                        {t("pinsLowModal.currentQty", "Current Qty")}
+                      </th>
+                      <th className="pb-3 text-center">
+                        {t("pinsLowModal.safetyStock", "Safety Stock")}
+                      </th>
+                      <th className="pb-3 text-center">
+                        {t("pinsLowModal.reorderQty", "Reorder Qty")}
+                      </th>
+                      <th className="pb-3 text-right">
+                        {t("pinsLowModal.status", "Status")}
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -501,7 +537,7 @@ export default function PINSDashboard() {
                 onClick={() => setIsModalOpen(false)}
                 className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-xs font-medium rounded-lg transition-all"
               >
-                Close
+                {t("pinsLowModal.close", "Close")}
               </button>
             </div>
           </div>

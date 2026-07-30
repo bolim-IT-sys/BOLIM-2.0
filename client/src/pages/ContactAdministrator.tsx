@@ -1,9 +1,11 @@
 import forgot from "../assets/undraw_forgot-password.svg";
 import { Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const ContactAdministrator = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-slate-100 transition-all duration-300 hover:shadow-2xl">
@@ -18,16 +20,19 @@ const ContactAdministrator = () => {
 
         {/* Heading */}
         <h2 className="text-2xl font-bold text-slate-800 mb-3 tracking-tight">
-          Forgot Your Password?
+          {t("forgotPassword.forgot", "Forgot Your Password?")}
         </h2>
 
         {/* Primary Message */}
         <p className="text-slate-600 text-sm leading-relaxed mb-4">
-          Please contact your{" "}
+          {t("forgotPassword.please", "Please contact your")}{" "}
           <span className="font-semibold text-slate-700">
-            System Administrator
+            {t("forgotPassword.sysAdmin", "System Administrator")}
           </span>{" "}
-          to have your password securely reset.
+          {t(
+            "forgotPassword.securely",
+            "to have your password securely reset.",
+          )}
         </p>
 
         {/* Secondary Note / Helper Text */}
@@ -35,8 +40,10 @@ const ContactAdministrator = () => {
           <p className="text-xs text-amber-800 leading-relaxed flex items-start gap-2">
             <Info size={15} className="text-amber-600 shrink-0 mt-0.5" />
             <span>
-              Only authorized administrators have the permissions required to
-              reset user passwords.
+              {t(
+                "forgotPassword.only",
+                "Only authorized administrators have the permissions required to reset user passwords.",
+              )}
             </span>
           </p>
         </div>
@@ -46,7 +53,7 @@ const ContactAdministrator = () => {
           onClick={() => navigate(`/login/`)}
           className="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-medium py-2.5 px-4 rounded-xl transition-colors duration-200 shadow-sm shadow-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
         >
-          Back to Login
+          {t("forgotPassword.backTo", "Back to Login")}
         </button>
       </div>
     </div>
