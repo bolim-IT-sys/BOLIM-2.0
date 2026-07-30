@@ -33,7 +33,7 @@ const ALLOWED_IMAGE_TYPES = [
   "image/webp",
   "image/gif",
 ];
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "http://172.17.49.40:3000";
 
 const INITIAL_FORM_STATE = {
   itemName: "",

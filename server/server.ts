@@ -29,7 +29,11 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://172.17.49.40:5173"],
+    origin: [
+      "http://localhost:5173",
+      "http://172.17.49.40:5173",
+      "http://172.17.49.40:8080",
+    ],
     credentials: true,
   }),
 );
@@ -66,8 +70,10 @@ async function startServer() {
     await sequelize.authenticate();
     console.log("Database connected successfully.");
 
-    app.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
+    // before prod app.listen(PORT, () => {
+    app.listen(Number(PORT), "0.0.0.0", () => {
+      console.log(`Server running at http://0.0.0.0:${PORT}`);
+      // before prod http://localhost:${PORT}
     });
   } catch (error) {
     console.error("Failed to start server:", error);

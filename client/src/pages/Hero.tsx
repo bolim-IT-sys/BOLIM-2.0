@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import api from "../api/axios";
 
 interface User {
   id: number;
@@ -17,19 +18,13 @@ const Hero: React.FC = () => {
       try {
         const token = localStorage.getItem("accessToken");
 
-        const response = await fetch("http://localhost:3000/api/users/me", {
+        const response = await api.get<User>("/users/me", {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch user");
-        }
-
-        const data: User = await response.json();
-        setUser(data);
+        setUser(response.data);
       } catch (error) {
         console.error("Error loading user:", error);
       }
@@ -37,6 +32,7 @@ const Hero: React.FC = () => {
 
     fetchCurrentUser();
   }, []);
+
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center px-6">
       <div className="max-w-md w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 text-center shadow-2xl">

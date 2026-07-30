@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { enqueueSnackbar } from "notistack";
+import api from "../api/axios";
 
 type SpareData = {
   id: number;
@@ -33,7 +34,6 @@ type UsageData = {
 };
 
 export default function InventoryDashboard() {
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
   const { t } = useTranslation();
   const [inventoryData, setInventoryData] = useState<SpareData[]>([]);
   const [inboundData, setInboundData] = useState({
@@ -72,7 +72,7 @@ export default function InventoryDashboard() {
     e.preventDefault();
 
     try {
-      await axios.post(`${API_URL}/spare/inbound`, inboundData);
+      await api.post(`/spare/inbound`, inboundData);
 
       enqueueSnackbar(`Inbound Successful!`, {
         variant: "success",
@@ -104,7 +104,7 @@ export default function InventoryDashboard() {
     e.preventDefault();
 
     try {
-      await axios.post(`${API_URL}/spare/usage`, useData);
+      await api.post(`/spare/usage`, useData);
 
       enqueueSnackbar(`Usage Recorded!`, {
         variant: "success",
@@ -134,24 +134,20 @@ export default function InventoryDashboard() {
 
   const fetchMovements = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL}/spare/view`);
-      setInventoryData(res.data);
+      // Fetch inventory and year-dependent summaries in parallel
+      const [inventoryRes, summaryRes, usageRes] = await Promise.all([
+        api.get("/spare/view"),
+        api.get(`/spare/inbound-summary?year=${selectedYear}`),
+        api.get(`/spare/usage-summary?year=${selectedYear}`),
+      ]);
 
-      const summaryRes = await axios.get(
-        `${API_URL}/spare/inbound-summary?year=${selectedYear}`,
-      );
-
+      setInventoryData(inventoryRes.data);
       setSummaryData(summaryRes.data);
-
-      const usageRes = await axios.get(
-        `${API_URL}/spare/usage-summary?year=${selectedYear}`,
-      );
-
       setUsageData(usageRes.data);
     } catch (error) {
       console.error("Fetch error:", error);
     }
-  }, [API_URL, selectedYear]);
+  }, [selectedYear]);
   useEffect(() => {
     fetchMovements();
   }, [fetchMovements, selectedYear]);

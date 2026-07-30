@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
-import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { enqueueSnackbar } from "notistack";
+import api from "../api/axios";
 
 type SpareData = {
   id: number;
@@ -34,7 +34,6 @@ type Column = {
 };
 
 export default function InventoryDashboard() {
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
   const { t } = useTranslation();
   const [inventoryData, setInventoryData] = useState<SpareData[]>([]);
   const [category, setCategory] = useState<Category[]>([]);
@@ -145,7 +144,7 @@ export default function InventoryDashboard() {
     e.preventDefault();
 
     try {
-      await axios.post(`${API_URL}/spare/create`, formData);
+      await api.post(`/spare/create`, formData);
 
       setOpenAddModal(false);
 
@@ -176,14 +175,14 @@ export default function InventoryDashboard() {
 
   const fetchMovements = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL}/spare/view`);
-      const ress = await axios.get(`${API_URL}/spare/category`);
+      const res = await api.get(`/spare/view`);
+      const ress = await api.get(`/spare/category`);
       setInventoryData(res.data);
       setCategory(ress.data);
     } catch (error) {
       console.error("Fetch error:", error);
     }
-  }, [API_URL]);
+  }, []);
   useEffect(() => {
     fetchMovements();
   }, [fetchMovements]);

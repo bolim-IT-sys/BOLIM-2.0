@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
 import { AgGridReact } from "ag-grid-react";
 import {
   ModuleRegistry,
@@ -13,6 +12,7 @@ import TimeCellEditor from "../components/TimePicker";
 import { useTranslation } from "react-i18next";
 import { enqueueSnackbar } from "notistack";
 import { Download, Plus } from "lucide-react";
+import api from "../api/axios";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -287,12 +287,9 @@ export default function MaterialControl() {
   const saveToServer = async (row: Row) => {
     try {
       if (row.id) {
-        await axios.put(`http://localhost:3000/api/maintenance/${row.id}`, row);
+        await api.put(`/maintenance/${row.id}`, row);
       } else {
-        const res = await axios.post(
-          "http://localhost:3000/api/maintenance",
-          row,
-        );
+        const res = await api.post("/maintenance", row);
 
         row.id = res.data.id; // assign ID after insert
       }
@@ -397,9 +394,7 @@ export default function MaterialControl() {
       try {
         setIsFetching(true);
 
-        const res = await axios.get(
-          "http://localhost:3000/api/maintenance/view",
-        );
+        const res = await api.get("/maintenance/view");
 
         setRowData(res.data);
       } catch (error) {
@@ -428,8 +423,8 @@ export default function MaterialControl() {
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/api/maintenance/export-items-to-excel",
+      const res = await api.post(
+        "/maintenance/export-items-to-excel",
         {
           month: filterType === "month" ? selectedMonth : null,
           year: filterType === "year" ? selectedYear : null,

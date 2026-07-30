@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
 //import { useTranslation } from "react-i18next";
 import { enqueueSnackbar } from "notistack";
 import { FileDown } from "lucide-react";
+import api from "../api/axios";
 
 type MovementFormData = {
   personnel: string;
@@ -15,8 +15,6 @@ type MovementFormData = {
   condition: string;
   remarks: string;
 };
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 export default function EquipmentMovement() {
   //const [isFetching, setIsFetching] = useState<boolean>();
@@ -53,8 +51,8 @@ export default function EquipmentMovement() {
         });
         return;
       }
-      const res = await axios.post(
-        `${API_URL}/movement/export-items-to-excel`,
+      const res = await api.post(
+        `/movement/export-items-to-excel`,
         {
           fromDate,
           toDate,
@@ -85,7 +83,7 @@ export default function EquipmentMovement() {
 
   const fetchMovements = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL}/movement/view`);
+      const res = await api.get(`/movement/view`);
       setMovements(res.data.data);
     } catch (error) {
       console.error("Fetch error:", error);
@@ -110,7 +108,7 @@ export default function EquipmentMovement() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_URL}/movement`, form);
+      await api.post(`/movement`, form);
       enqueueSnackbar(`Saved!`, {
         variant: "success",
       });
