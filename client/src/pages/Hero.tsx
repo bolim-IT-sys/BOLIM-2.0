@@ -34,7 +34,8 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center px-6">
+    <div className="min-h-screen bg-linear-to-br from-[#4f46e5] via-[#155dfc] to-[#60a5fa] flex items-center justify-center px-6">
+      {/* from-indigo-600 via-purple-600 to-pink-500 */}
       <div className="max-w-md w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 text-center shadow-2xl">
         <div className="mx-auto w-20 h-20 rounded-full bg-white/20 flex items-center justify-center mb-6">
           <span className="text-4xl">👋</span>
