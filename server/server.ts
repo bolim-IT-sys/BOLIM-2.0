@@ -23,6 +23,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const projectRoot = process.cwd();
 
 app.use(express.json());
 app.use(cookieParser());
@@ -50,14 +51,14 @@ app.use("/api/users", userRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/api/repairs", repairRoutes);
 app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "src/uploads/repairs")),
+  "/uploads/repairs",
+  express.static(path.join(projectRoot, "src/uploads/repairs")),
 );
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/movement", movementRoutes);
 app.use("/api/spare", spareRoutes);
 app.use("/api/it-inventory", itInventoryRoutes, itDashboardRoutes);
-app.use("/uploads", express.static(path.join(__dirname, "src/uploads")));
+app.use("/uploads", express.static(path.join(projectRoot, "src/uploads")));
 //console.log("STATIC PATH:", path.join(__dirname, "uploads"));
 app.use("/api", logsRoute);
 app.use("/api/pins-inventory", pinsInventory, pinsDashboardRoutes);
