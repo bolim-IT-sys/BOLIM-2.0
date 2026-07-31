@@ -17,6 +17,8 @@ import api from "../api/axios";
 import { MModal } from "../modals/MovableModal";
 import RepairForm from "../components/RepairFrom";
 import RepairHistory from "../components/RepairHistory";
+import CreatableSelect from "react-select/creatable";
+import { deptOptions } from "../docs/data";
 
 interface MonthlySummary {
   inbound: Record<string, number>;
@@ -1351,19 +1353,47 @@ export default function ITStockDetailsPage() {
                   <label className="block text-xs font-semibold text-slate-500 mb-1">
                     {t("forms.dept", "Department *")}
                   </label>
-                  <input
+                  <CreatableSelect
+                    isClearable
                     required
-                    type="text"
-                    value={outboundForm.department}
-                    onChange={(e) =>
+                    options={deptOptions}
+                    value={
+                      outboundForm.department
+                        ? {
+                            value: outboundForm.department,
+                            label: outboundForm.department,
+                          }
+                        : null
+                    }
+                    onChange={(selectedOption) =>
                       setOutboundForm({
                         ...outboundForm,
-                        department: e.target.value,
+                        department: selectedOption ? selectedOption.value : "",
                       })
                     }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2
-                            focus:ring-blue-500/10 transition-all"
                     placeholder="e.g. IT, Operations"
+                    menuPortalTarget={document.body} // Renders the menu outside the parent div container
+                    styles={{
+                      menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Ensures the menu stays on top of modals/headers
+                    }}
+                    classNames={{
+                      control: (state) =>
+                        `w-full px-2 py-1 bg-white border rounded-lg text-sm transition-all ${
+                          state.isFocused
+                            ? "border-blue-500 ring-2 ring-blue-500/15 outline-none"
+                            : "border-slate-200 hover:border-slate-300"
+                        }`,
+                      placeholder: () => "text-gray-400",
+                      menu: () =>
+                        "bg-white border border-slate-200 rounded-lg shadow-lg mt-1 text-sm",
+                      option: (state) =>
+                        `px-3 py-2 cursor-pointer ${
+                          state.isFocused
+                            ? "bg-blue-50 text-blue-600"
+                            : "text-slate-700"
+                        }`,
+                    }}
+                    unstyled // Enables clean integration with Tailwind utility classes via classNames
                   />
                 </div>
               </div>
