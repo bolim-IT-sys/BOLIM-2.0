@@ -167,13 +167,57 @@ router.put(
 
 // Delete Item Route 🗸
 router.delete("/delete/:id", async (req: Request, res: Response) => {
+  const transaction = await PINSAsset.sequelize?.transaction();
+  // Inbound Association
+  PINSAsset.hasMany(PINSAssetSerialInbound, {
+    foreignKey: "asset_id",
+    onDelete: "CASCADE", // <-- Add this
+  });
+  PINSAssetSerialInbound.belongsTo(PINSAsset, {
+    foreignKey: "asset_id",
+  });
+  // Outbound Association
+  PINSAsset.hasMany(PINSAssetSerialOutbound, {
+    foreignKey: "asset_id",
+    onDelete: "CASCADE",
+  });
+  PINSAssetSerialOutbound.belongsTo(PINSAsset, {
+    foreignKey: "asset_id",
+  });
   try {
     const { id } = req.params;
-    await PINSAsset.destroy({ where: { id } });
-    return res.json({ success: true });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Failed to delete item" });
+
+    // 1. Delete child records first to satisfy the foreign key constraint
+    await PINSAssetSerialInbound.destroy({
+      where: { asset_id: id },
+      transaction,
+    });
+
+    // 2. Now delete the parent asset
+    const deletedCount = await PINSAsset.destroy({
+      where: { id },
+      transaction,
+    });
+
+    if (deletedCount === 0) {
+      await transaction?.rollback();
+      return res
+        .status(404)
+        .json({ success: false, message: "Item not found" });
+    }
+
+    await transaction?.commit();
+    return res.json({
+      success: true,
+      message: "Asset and its history deleted successfully",
+    });
+  } catch (error: any) {
+    await transaction?.rollback();
+    console.error("Delete asset error:", error);
+    return res.status(500).json({
+      message: "Failed to delete item due to related records",
+      error: error.message,
+    });
   }
 });
 
