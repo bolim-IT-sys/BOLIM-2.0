@@ -94,6 +94,10 @@ export default function Pins() {
     );
   });
 
+  const sortedStocks = [...filteredStocks].sort((a, b) => {
+    return (a.pin_name || "").localeCompare(b.pin_name || "");
+  });
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
@@ -423,7 +427,7 @@ export default function Pins() {
           </thead>
 
           <tbody className="divide-y divide-slate-200">
-            {filteredStocks.map((item) => (
+            {sortedStocks.map((item) => (
               <tr key={item.id} className="hover:bg-slate-50 transition-colors">
                 {columns.map((column) => (
                   <td

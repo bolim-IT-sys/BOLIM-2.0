@@ -243,10 +243,15 @@ router.get("/dashboard/activities", async (req, res) => {
       const qty = record.inbound_quantity || 1;
       const lot = record.lot_number ? ` (Lot: ${record.lot_number})` : "";
 
+      // Use createdAt for exact precision if available, otherwise normalize dateonly
+      const rawTime = record.createdAt || record.inbound_date;
+
       return {
         id: `in-${record.id}`,
         text: `${pinName} Inbound (${qty} pcs)${lot}`,
-        time: record.inbound_date || record.createdAt,
+        time: rawTime
+          ? new Date(rawTime).toISOString()
+          : new Date().toISOString(),
         type: "inbound",
         personnel: record.inbounding_personnel,
       };
@@ -259,10 +264,15 @@ router.get("/dashboard/activities", async (req, res) => {
       const qty = record.outbound_quantity || 1;
       const rcv = record.receiver ? ` to ${record.receiver}` : "";
 
+      // Use createdAt for exact precision if available, otherwise normalize dateonly
+      const rawTime = record.createdAt || record.outbound_date;
+
       return {
         id: `out-${record.id}`,
         text: `${pinName} Outbound (${qty} pcs)${rcv}`,
-        time: record.outbound_date || record.createdAt,
+        time: rawTime
+          ? new Date(rawTime).toISOString()
+          : new Date().toISOString(),
         type: "outbound",
         personnel: record.outbound_personnel,
       };

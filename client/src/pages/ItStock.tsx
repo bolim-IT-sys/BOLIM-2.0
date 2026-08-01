@@ -95,6 +95,10 @@ export default function ItStocks() {
     );
   });
 
+  const sortedStocks = [...filteredStocks].sort((a, b) => {
+    return (a.item_name || "").localeCompare(b.item_name || "");
+  });
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
@@ -410,7 +414,7 @@ export default function ItStocks() {
           </thead>
 
           <tbody className="divide-y divide-slate-200">
-            {filteredStocks.map((item) => (
+            {sortedStocks.map((item) => (
               <tr key={item.id} className="hover:bg-slate-50 transition-colors">
                 {columns.map((column) => (
                   <td
