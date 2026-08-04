@@ -1278,6 +1278,7 @@ export default function ITStockDetailsPage() {
                   <input
                     required
                     type="text"
+                    name="outbound_personnel"
                     value={outboundForm.outbound_personnel}
                     onChange={(e) =>
                       setOutboundForm({
@@ -1297,6 +1298,7 @@ export default function ITStockDetailsPage() {
                   <input
                     required
                     type="text"
+                    name="receiver"
                     value={outboundForm.receiver}
                     onChange={(e) =>
                       setOutboundForm({

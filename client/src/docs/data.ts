@@ -7,6 +7,7 @@ export const deptOptions: readonly DeptOption[] = [
   { value: "Accounting", label: "Accounting" },
   { value: "Admin", label: "Admin" },
   { value: "Assembly", label: "Assembly" },
+  { value: "Cutting & Crimping", label: "Cutting & Crimping" },
   { value: "HR", label: "Human Resources" },
   { value: "IT", label: "Information Technology" },
   { value: "Planning", label: "Planning" },
