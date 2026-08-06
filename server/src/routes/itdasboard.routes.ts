@@ -1,9 +1,9 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import ITAsset from "../models/it_assets.model";
 import ITAssetSerial from "../models/it_asset_serial.model";
 import { calculateInventoryMetrics } from "../utils/metricsHelper";
 import { calculateAssetUsage } from "../utils/usageHelpers";
-import { fn, col } from "sequelize";
+import { fn, col, Op } from "sequelize";
 
 const router = Router();
 
@@ -58,39 +58,65 @@ router.get("/dashboard/kpis", async (req, res) => {
 });
 
 router.get("/dashboard/monthly", async (req, res) => {
-  const records = await ITAssetSerial.findAll();
+  try {
+    const year = req.query.year
+      ? Number(req.query.year)
+      : new Date().getFullYear();
 
-  const inbound = Array(12).fill(0);
-  const outbound = Array(12).fill(0);
+    const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
+    const endOfYear = new Date(`${year}-12-31T23:59:59.999Z`);
 
-  records.forEach((record) => {
-    if (record.received_date) {
-      inbound[new Date(record.received_date).getMonth()]++;
-    }
+    // Fetch ONLY records that fall within the requested year
+    const records = await ITAssetSerial.findAll({
+      where: {
+        [Op.or]: [
+          { received_date: { [Op.between]: [startOfYear, endOfYear] } },
+          { deployed_date: { [Op.between]: [startOfYear, endOfYear] } },
+        ],
+      },
+    });
 
-    if (record.deployed_date) {
-      outbound[new Date(record.deployed_date).getMonth()]++;
-    }
-  });
+    const inbound = Array(12).fill(0);
+    const outbound = Array(12).fill(0);
 
-  res.json({
-    labels: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-    inbound,
-    outbound,
-  });
+    records.forEach((record) => {
+      if (record.received_date) {
+        const date = new Date(record.received_date);
+        if (date.getFullYear() === year) {
+          inbound[date.getMonth()]++;
+        }
+      }
+
+      if (record.deployed_date) {
+        const date = new Date(record.deployed_date);
+        if (date.getFullYear() === year) {
+          outbound[date.getMonth()]++;
+        }
+      }
+    });
+
+    res.json({
+      labels: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+      inbound,
+      outbound,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 router.get("/dashboard/status-distribution", async (req, res) => {
