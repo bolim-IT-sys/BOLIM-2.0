@@ -59,6 +59,7 @@ interface ITSerialRecord {
     | string;
   reason: string | null;
   reasonFor: string | null;
+  disposed_date: string | null;
 }
 
 export default function ITStockDetailsPage() {
@@ -1513,6 +1514,15 @@ export default function ITStockDetailsPage() {
                     <th className="px-4 py-3 text-center">
                       {t("allocation.reason", "Reason")}
                     </th>
+                    <th
+                      className={
+                        selectedSerial.remarks === "DISPOSED"
+                          ? "px-4 py-3 text-center"
+                          : "hidden"
+                      }
+                    >
+                      {t("allocation.disposed", "Disposed Date")}
+                    </th>
                     <th className="px-4 py-3 text-center">
                       {t("allocation.status", "Status")}
                     </th>
@@ -1609,6 +1619,16 @@ export default function ITStockDetailsPage() {
                       ) : (
                         selectedSerial.reasonFor || "—"
                       )}
+                    </td>
+
+                    <td
+                      className={
+                        selectedSerial.remarks === "DISPOSED"
+                          ? "px-4 py-3 text-center"
+                          : "hidden"
+                      }
+                    >
+                      {selectedSerial.disposed_date}
                     </td>
 
                     <td className="px-4 py-3 text-center">

@@ -174,7 +174,8 @@
     "updated": "Updated By",
     "dateReceived": "Date Received",
     "status": "Status",
-    "serialDetails": "Serial Details"
+    "serialDetails": "Serial Details",
+    "disposed": "Disposed Date"
   },
   "sideNav": {
     "dash": "Dashboard",

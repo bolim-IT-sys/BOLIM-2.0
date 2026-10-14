@@ -42,6 +42,8 @@ class ITAssetSerial extends Model<
 
   declare remarks: string;
 
+  declare disposed_date: Date | null;
+
   declare created_at: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
@@ -100,6 +102,8 @@ ITAssetSerial.init(
     },
 
     reasonFor: DataTypes.TEXT,
+
+    disposed_date: DataTypes.DATEONLY,
 
     created_at: {
       type: DataTypes.DATE,

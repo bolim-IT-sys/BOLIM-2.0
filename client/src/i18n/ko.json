@@ -174,7 +174,8 @@
     "updated": "업데이트 주체:",
     "dateReceived": "접수일",
     "status": "상태",
-    "serialDetails": "일련번호 상세 정보"
+    "serialDetails": "일련번호 상세 정보",
+    "disposed": "처분일"
   },
   "sideNav": {
     "dash": "대시보드",

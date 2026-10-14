@@ -1165,7 +1165,7 @@ router.put("/return/:id", async (req, res) => {
         authorized_personnel: null,
         outbound_personnel: null,
         reason: null,
-        deployed_date: null,
+        //deployed_date: null, nakacomment kasi nagkakadiscrepancy sa inbound, outbound.
         remarks: "RETURNED: AVAILABLE",
       },
       { transaction },
@@ -1506,6 +1506,7 @@ router.put("/dispose/:id", async (req: Request, res: Response) => {
     serial.remarks = "DISPOSED";
     serial.authorized_personnel = authorized_personnel;
     serial.reasonFor = reasonFor; // Maps directly to your text row view display column
+    serial.disposed_date = new Date();
 
     await serial.save({ transaction });
     await transaction.commit();
