@@ -11,6 +11,7 @@ import {
   Minus,
   X,
   BarChart3,
+  ScanBarcodeIcon,
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import api from "../api/axios";
@@ -19,6 +20,7 @@ import RepairForm from "../components/RepairFrom";
 import RepairHistory from "../components/RepairHistory";
 import CreatableSelect from "react-select/creatable";
 import { deptOptions } from "../docs/data";
+import BarcodeScanner from "../components/BarcodeScanner";
 
 interface MonthlySummary {
   inbound: Record<string, number>;
@@ -89,6 +91,8 @@ export default function ITStockDetailsPage() {
   const [editingRecord, setEditingRecord] = useState<ITSerialRecord | null>(
     null,
   );
+  const [showInboundScanner, setShowInboundScanner] = useState(false);
+  const [showOutboundScanner, setShowOutboundScanner] = useState(false);
 
   // Modal Form States
   const [inboundForm, setInboundForm] = useState({
@@ -1180,20 +1184,32 @@ export default function ITStockDetailsPage() {
                 <label className="block text-xs font-semibold text-slate-500 mb-1">
                   {t("forms.sn", "Serial Number *")}
                 </label>
-                <input
-                  required
-                  type="text"
-                  value={inboundForm.serial_number}
-                  onChange={(e) =>
-                    setInboundForm({
-                      ...inboundForm,
-                      serial_number: e.target.value,
-                    })
-                  }
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2
-                            focus:ring-blue-500/10 transition-all"
-                  placeholder="e.g. S/N-9323F82"
-                />
+
+                <div className="relative w-full">
+                  <input
+                    required
+                    type="text"
+                    value={inboundForm.serial_number}
+                    onChange={(e) =>
+                      setInboundForm({
+                        ...inboundForm,
+                        serial_number: e.target.value,
+                      })
+                    }
+                    className="w-full pl-3.5 pr-14 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
+                    placeholder="e.g. S/N-9323F82"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowInboundScanner(true)}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-8 text-slate-600 hover:bg-blue-50 rounded-md transition-colors"
+                    title="Scan Barcode"
+                    aria-label="Scan barcode"
+                  >
+                    <ScanBarcodeIcon />
+                  </button>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -1254,7 +1270,7 @@ export default function ITStockDetailsPage() {
 
       {/* --- OUTBOUND MODAL DIALOG --- */}
       {showOutboundModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-60 p-4 animate-fadeIn">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden transform transition-all scale-100">
             <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
               <h3 className="font-bold text-slate-800 text-base">
@@ -1317,20 +1333,33 @@ export default function ITStockDetailsPage() {
                 <label className="block text-xs font-semibold text-slate-500 mb-1">
                   {t("forms.sn", "Serial Number *")}
                 </label>
-                <input
-                  required
-                  type="text"
-                  value={outboundForm.serial_number}
-                  onChange={(e) =>
-                    setOutboundForm({
-                      ...outboundForm,
-                      serial_number: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2
+
+                <div className="relative w-full">
+                  <input
+                    required
+                    type="text"
+                    value={outboundForm.serial_number}
+                    onChange={(e) =>
+                      setOutboundForm({
+                        ...outboundForm,
+                        serial_number: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2
                             focus:ring-blue-500/10 transition-all"
-                  placeholder="Enter specific S/N to deploy"
-                />
+                    placeholder="Enter specific S/N to deploy"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowOutboundScanner(true)}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-8 text-slate-600 hover:bg-blue-50 rounded-md transition-colors md:hidden"
+                    title="Scan Barcode"
+                    aria-label="Scan barcode"
+                  >
+                    <ScanBarcodeIcon />
+                  </button>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -1853,6 +1882,32 @@ export default function ITStockDetailsPage() {
           </div>
         )}
       </MModal>
+
+      {/* 📷 CAMERA SCANNER POPUP MODAL */}
+      {showInboundScanner && (
+        <BarcodeScanner
+          onScan={(barcode) => {
+            setInboundForm((prev) => ({
+              ...prev,
+              serial_number: barcode,
+            }));
+            setShowInboundScanner(false);
+          }}
+          onClose={() => setShowInboundScanner(false)}
+        />
+      )}
+      {showOutboundScanner && (
+        <BarcodeScanner
+          onScan={(barcode) => {
+            setOutboundForm((prev) => ({
+              ...prev,
+              serial_number: barcode,
+            }));
+            setShowOutboundScanner(false);
+          }}
+          onClose={() => setShowOutboundScanner(false)}
+        />
+      )}
     </div>
   );
 }
